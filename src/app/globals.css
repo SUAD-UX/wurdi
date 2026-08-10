@@ -1,33 +1,88 @@
 @import 'tailwindcss';
 
-:root {
-  /* Core surfaces */
-  --background: #07090a;
-  --background-elevated: #0a0f0d;
+/* =========================================================================
+   WURDI DESIGN TOKENS
+   Everything a designer would want to tweak (radius, opacity, blur, glow,
+   colors, motion timing) lives in this one block. Change a value here and
+   it propagates everywhere — no hunting through component files.
+   ========================================================================= */
+
+:root,
+[data-theme='dark'] {
+  /* --- Background --- */
+  --background: #0a0d0c; /* graphite/charcoal, not pure black */
+  --background-elevated: #111614;
   --foreground: #eef4f1;
   --foreground-muted: #8fa199;
   --foreground-subtle: #5c6b64;
 
-  /* Brand palette */
-  --color-emerald-primary: #12b981;
-  --color-emerald-primary-dim: #0d8a61;
-  --color-mint-secondary: #7fe8c4;
+  /* --- Brand colors --- */
+  --color-emerald-primary: #12b981; /* primary CTA / positive accent */
+  --color-emerald-primary-dim: #0d8a61; /* primary hover */
+  --color-mint-secondary: #6fcfae; /* toned down from #7fe8c4 — was reading as neon */
   --color-accent-white: #ffffff;
-  --color-loss: #f16565;
+  --color-loss: #e5726b; /* softened coral-red, restrained not alarm-red */
+  --color-aqua-atmosphere: #59c9d6; /* very subtle secondary atmospheric light only */
 
-  /* Glass */
-  --glass-fill: rgba(255, 255, 255, 0.035);
-  --glass-fill-strong: rgba(255, 255, 255, 0.055);
-  --glass-border: rgba(127, 232, 196, 0.12);
-  --glass-border-strong: rgba(127, 232, 196, 0.2);
+  /* --- Glass material: opacity is THE thing to tune for "more/less glassy" --- */
+  --glass-fill-opacity: 0.04; /* card fill transparency */
+  --glass-fill-strong-opacity: 0.065;
+  --glass-border-opacity: 0.1; /* border translucency, spec range is 10-20% */
+  --glass-border-strong-opacity: 0.18;
+  --glass-blur: 20px; /* backdrop-blur amount */
+  --glass-highlight-opacity: 0.06; /* internal top-edge light reflection */
 
-  /* Radii */
-  --radius-card: 1.75rem;
-  --radius-blob: 2.5rem;
+  --glass-fill: rgba(255, 255, 255, var(--glass-fill-opacity));
+  --glass-fill-strong: rgba(255, 255, 255, var(--glass-fill-strong-opacity));
+  --glass-border: rgba(111, 207, 174, var(--glass-border-opacity));
+  --glass-border-strong: rgba(111, 207, 174, var(--glass-border-strong-opacity));
 
-  /* Motion: liquid/elastic, never robotic */
-  --ease-liquid: cubic-bezier(0.34, 1.4, 0.44, 1);
-  --duration-liquid: 320ms;
+  /* --- Radius --- */
+  --radius-card: 1.5rem; /* GlassCard corner radius */
+
+  /* --- Shadow / glow strength --- */
+  --shadow-ambient: 0 24px 56px -28px rgba(0, 0, 0, 0.55); /* restrained external shadow */
+  --glow-primary-opacity: 0.12; /* hover glow intensity, keep low = "restrained not neon" */
+
+  /* --- Motion --- */
+  --ease-liquid: cubic-bezier(0.34, 1.2, 0.44, 1); /* slow elastic-ish ease, not bouncy */
+  --duration-liquid: 340ms;
+  --float-distance: 3px; /* idle floating range, spec asked for 2-4px */
+  --float-duration: 6s;
+
+  /* --- Atmospheric background layers --- */
+  --wurdi-bg-grid-opacity: 0.035;
+  --wurdi-bg-candles-opacity: 0.05;
+}
+
+/* Light theme — same token names, different values. Toggle with
+   <html data-theme="light">. Nothing else in the codebase needs to change. */
+[data-theme='light'] {
+  --background: #f5f3ee; /* warm ivory/soft cream */
+  --background-elevated: #ffffff;
+  --foreground: #1b201d;
+  --foreground-muted: #5b655f;
+  --foreground-subtle: #8a938c;
+
+  --color-emerald-primary: #0e9d6e;
+  --color-emerald-primary-dim: #0b7d58;
+  --color-mint-secondary: #2f9c7d;
+  --color-loss: #d1584f;
+  --color-aqua-atmosphere: #2e9aa8;
+
+  --glass-fill-opacity: 0.55; /* light mode glass reads as frosted white, not transparent-to-black */
+  --glass-fill-strong-opacity: 0.72;
+  --glass-border-opacity: 0.5;
+  --glass-border-strong-opacity: 0.7;
+  --glass-highlight-opacity: 0.5;
+
+  --glass-fill: rgba(255, 255, 255, var(--glass-fill-opacity));
+  --glass-fill-strong: rgba(255, 255, 255, var(--glass-fill-strong-opacity));
+  --glass-border: rgba(255, 255, 255, var(--glass-border-opacity));
+  --glass-border-strong: rgba(255, 255, 255, var(--glass-border-strong-opacity));
+
+  --shadow-ambient: 0 20px 44px -24px rgba(20, 30, 26, 0.14);
+  --glow-primary-opacity: 0.08;
 }
 
 @theme inline {
@@ -42,6 +97,7 @@
   --color-secondary: var(--color-mint-secondary);
   --color-accent: var(--color-accent-white);
   --color-loss: var(--color-loss);
+  --color-aqua: var(--color-aqua-atmosphere);
 
   --color-glass: var(--glass-fill);
   --color-glass-strong: var(--glass-fill-strong);
@@ -49,7 +105,6 @@
   --color-glass-border-strong: var(--glass-border-strong);
 
   --radius-card: var(--radius-card);
-  --radius-blob: var(--radius-blob);
 
   --font-sans:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
@@ -67,40 +122,61 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   position: relative;
+  transition:
+    background-color var(--duration-liquid) var(--ease-liquid),
+    color var(--duration-liquid) var(--ease-liquid);
 }
 
-/* Very subtle radial depth behind the whole canvas */
+/* =========================================================================
+   ATMOSPHERIC BACKGROUND
+   Layered behind the UI (z-index -3 to -1). Three subtle layers:
+   1. Soft radial light (emerald + a touch of aqua)
+   2. Faint market grid lines
+   3. Faint candlestick-inspired silhouette
+   All layers are intentionally low-opacity — cards/text/charts must stay
+   the visual focus. Tune each layer's opacity independently below.
+   ========================================================================= */
+
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: -2;
+  z-index: -3;
+  pointer-events: none;
   background:
-    radial-gradient(60% 40% at 15% 0%, rgba(18, 185, 129, 0.05), transparent 70%),
-    radial-gradient(50% 40% at 100% 30%, rgba(127, 232, 196, 0.04), transparent 70%);
+    radial-gradient(55% 38% at 12% 0%, rgba(18, 185, 129, 0.07), transparent 70%),
+    radial-gradient(45% 36% at 100% 25%, rgba(89, 201, 214, 0.045), transparent 72%),
+    radial-gradient(40% 30% at 50% 100%, rgba(111, 207, 174, 0.035), transparent 75%);
 }
 
-/* Very subtle film-grain noise so the near-black background never looks flat/banded */
+/* Faint market grid — horizontal/vertical lines, like a chart backdrop */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: -1;
-  opacity: 0.025;
+  z-index: -2;
   pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: var(--wurdi-bg-grid-opacity);
+  background-image:
+    linear-gradient(to right, var(--foreground-subtle) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--foreground-subtle) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(80% 60% at 50% 20%, black, transparent 85%);
 }
 
-/* Aurora ambient glow behind hero sections — soft emerald, fades naturally, never neon */
-.aurora-glow {
-  position: absolute;
-  inset: -25%;
-  z-index: 0;
+/* Faint candlestick silhouette shapes, positioned low so they don't
+   interfere with card content. Pure decoration — aria-hidden via container. */
+.wurdi-bg-candles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(38% 55% at 18% 15%, rgba(18, 185, 129, 0.14), transparent 72%),
-    radial-gradient(32% 45% at 82% 8%, rgba(127, 232, 196, 0.08), transparent 72%);
-  filter: blur(48px);
+  opacity: var(--wurdi-bg-candles-opacity);
+  overflow: hidden;
+  background-repeat: repeat-x;
+  background-position: bottom -40px left 0;
+  background-size: 480px 220px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='220'><g fill='none' stroke='%236fcfae' stroke-width='2'><line x1='20' y1='60' x2='20' y2='160'/><rect x='12' y='90' width='16' height='45' rx='2'/><line x1='70' y1='40' x2='70' y2='130'/><rect x='62' y='55' width='16' height='55' rx='2'/><line x1='120' y1='70' x2='120' y2='180'/><rect x='112' y='100' width='16' height='40' rx='2'/><line x1='170' y1='30' x2='170' y2='120'/><rect x='162' y='45' width='16' height='60' rx='2'/><line x1='220' y1='55' x2='220' y2='150'/><rect x='212' y='75' width='16' height='50' rx='2'/><line x1='270' y1='45' x2='270' y2='140'/><rect x='262' y='60' width='16' height='58' rx='2'/><line x1='320' y1='65' x2='320' y2='170'/><rect x='312' y='90' width='16' height='42' rx='2'/><line x1='370' y1='35' x2='370' y2='125'/><rect x='362' y='50' width='16' height='55' rx='2'/><line x1='420' y1='60' x2='420' y2='155'/><rect x='412' y='80' width='16' height='48' rx='2'/></g></svg>");
 }
 
 /* Reduced motion respect */
@@ -119,3 +195,15 @@ body::after {
   background: rgba(18, 185, 129, 0.3);
   color: #ffffff;
 }
+
+/* Idle floating motion for LiquidCard — small, slow, never bouncy */
+@keyframes wurdi-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(var(--float-distance) * -1));
+  }
+}
+
