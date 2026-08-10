@@ -1,15 +1,38 @@
-import { ArrowUpRight, Info, Lock, Settings2 } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import { ArrowUpRight, Info, Lock, Settings2, Wallet } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import type { SavingsVault } from '@/types/portfolio';
+import { SavingsPercentageSelector } from '@/components/savings/SavingsPercentageSelector';
+import type { SavingsPreference, SavingsVault } from '@/types/portfolio';
+import { calculateSavingsPreview } from '@/features/savings/calculations';
 import { formatCurrency, formatSignedCurrency, truncateAddress } from '@/utils/format';
 
 export interface SavingsVaultCardProps {
   vault: SavingsVault;
+  /** Sample profit used only to render the "Every time I make +$100..." preview line. */
+  previewProfitUsd: number;
+  onManageVault?: () => void;
+  onConnectWallet?: () => void;
 }
 
-export function SavingsVaultCard({ vault }: SavingsVaultCardProps) {
+/**
+ * Savings Vault card. Two states:
+ *  - wallet.isConnected === false -> empty state with a "Connect savings wallet" CTA
+ *  - wallet.isConnected === true  -> totals + percentage selector + live preview + address
+ * The percentage itself is local component state for now (see SavingsPercentageSelector
+ * docblock) — no persistence layer until auth/wallet/backend land.
+ */
+export function SavingsVaultCard({
+  vault,
+  previewProfitUsd,
+  onManageVault,
+  onConnectWallet,
+}: SavingsVaultCardProps) {
+  const [preference, setPreference] = useState<SavingsPreference>(vault.preference);
+  const preview = calculateSavingsPreview(previewProfitUsd, preference);
+
   return (
     <GlassCard className="p-6">
       <div className="mb-5 flex items-center justify-between">
@@ -17,39 +40,84 @@ export function SavingsVaultCard({ vault }: SavingsVaultCardProps) {
           Savings Vault
           <Info className="text-foreground-subtle h-3.5 w-3.5" strokeWidth={2} />
         </h3>
-        <Badge tone="accent">Auto Save: {vault.autoSavePercent}%</Badge>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-foreground-subtle mb-1 text-xs">Total Saved</p>
-          <p className="text-foreground text-3xl font-semibold">
-            {formatCurrency(vault.totalSavedUsd)}
+      {!vault.wallet.isConnected ? (
+        <div className="border-glass-border-strong flex flex-col items-center gap-3 rounded-2xl border border-dashed py-8 text-center">
+          <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
+            <Wallet className="text-secondary h-5 w-5" strokeWidth={1.75} />
+          </div>
+          <p className="text-foreground-subtle max-w-[220px] text-sm">
+            Your savings wallet isn&apos;t connected yet.
           </p>
-          <p className="text-secondary mt-1.5 flex items-center gap-1 text-xs font-medium">
-            <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
-            {formatSignedCurrency(vault.changeThisMonthUsd)} this month
-          </p>
+          <Button variant="secondary" size="sm" onClick={onConnectWallet}>
+            Connect savings wallet
+          </Button>
         </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-foreground-subtle mb-1 text-xs">Total Saved</p>
+              <p className="text-foreground text-3xl font-semibold">
+                {formatCurrency(vault.totalSavedUsd)}
+              </p>
+              <p className="text-secondary mt-1.5 flex items-center gap-1 text-xs font-medium">
+                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+                {formatSignedCurrency(vault.changeThisMonthUsd)} this month
+              </p>
+            </div>
 
-        <div
-          className="from-primary/25 to-secondary/10 relative flex h-20 w-20 shrink-0 items-center justify-center bg-gradient-to-br shadow-[0_20px_40px_-16px_rgba(18,185,129,0.3)]"
-          style={{ borderRadius: '38% 62% 55% 45% / 45% 40% 60% 55%' }}
-        >
-          <Lock className="text-secondary h-8 w-8" strokeWidth={1.5} />
-        </div>
-      </div>
+            <div
+              className="from-primary/25 to-secondary/10 relative flex h-20 w-20 shrink-0 items-center justify-center bg-gradient-to-br shadow-[0_20px_40px_-16px_rgba(18,185,129,0.3)]"
+              style={{ borderRadius: '38% 62% 55% 45% / 45% 40% 60% 55%' }}
+            >
+              <Lock className="text-secondary h-8 w-8" strokeWidth={1.5} />
+            </div>
+          </div>
 
-      <div className="border-glass-border mt-5 flex items-center justify-between border-t pt-4">
-        <div>
-          <p className="text-foreground-subtle text-xs">Savings Wallet</p>
-          <p className="text-foreground-muted text-xs">{truncateAddress(vault.vaultAddress)}</p>
-        </div>
-        <Button variant="secondary" size="sm">
-          <Settings2 className="h-3.5 w-3.5" strokeWidth={2} />
-          Manage Vault
-        </Button>
-      </div>
+          <div className="border-glass-border mt-5 rounded-2xl border bg-white/[0.015] p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-foreground-muted text-sm">Save from profits</span>
+              <SavingsPercentageSelector value={preference} onChange={setPreference} />
+            </div>
+            <div className="text-foreground-subtle space-y-1.5 text-xs">
+              <p>
+                Every time I make{' '}
+                <span className="text-foreground font-medium">
+                  {formatSignedCurrency(preview.profitUsd)}
+                </span>{' '}
+                profit
+              </p>
+              <p>
+                WURDI saves{' '}
+                <span className="text-secondary font-medium">
+                  {formatCurrency(preview.savingsUsd)}
+                </span>
+              </p>
+              <p>
+                I keep{' '}
+                <span className="text-foreground font-medium">
+                  {formatCurrency(preview.keepUsd)}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="border-glass-border mt-4 flex items-center justify-between border-t pt-4">
+            <div>
+              <p className="text-foreground-subtle text-xs">Savings Wallet</p>
+              <p className="text-foreground-muted text-xs">
+                {vault.wallet.address ? truncateAddress(vault.wallet.address) : '—'}
+              </p>
+            </div>
+            <Button variant="secondary" size="sm" onClick={onManageVault}>
+              <Settings2 className="h-3.5 w-3.5" strokeWidth={2} />
+              Manage Vault
+            </Button>
+          </div>
+        </>
+      )}
     </GlassCard>
   );
 }

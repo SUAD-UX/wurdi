@@ -21,12 +21,12 @@ export function PortfolioHeroCard({ snapshot, performance }: PortfolioHeroCardPr
 
   return (
     <LiquidCard>
-      <div className="mb-1 flex items-center gap-2 text-sm text-foreground-subtle">
+      <div className="text-foreground-subtle mb-1 flex items-center gap-2 text-sm">
         <span>Total Portfolio Value</span>
         <Eye className="h-4 w-4" strokeWidth={2} />
       </div>
 
-      <p className="text-4xl font-semibold tracking-tight text-foreground">
+      <p className="text-foreground text-4xl font-semibold tracking-tight">
         {formatCurrency(snapshot.totalValueUsd)}
       </p>
       <p

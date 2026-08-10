@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Gem, Sprout } from 'lucide-react';
+import { ChevronDown, Sprout } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '@/constants/navigation';
 import { Avatar } from '@/components/ui/Avatar';
@@ -55,17 +55,6 @@ export function Sidebar({ userName, walletAddress }: SidebarProps) {
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="border-glass-border bg-glass rounded-2xl border p-4">
-          <Gem className="text-secondary mb-3 h-5 w-5" strokeWidth={1.5} />
-          <p className="text-foreground mb-1 text-sm font-medium">Upgrade to Pro</p>
-          <p className="text-foreground-subtle mb-3 text-xs leading-relaxed">
-            Unlock advanced analytics, insights and automated savings.
-          </p>
-          <button className="bg-primary hover:bg-primary-dim w-full rounded-full py-2 text-xs font-semibold text-black transition-colors">
-            Upgrade now
-          </button>
-        </div>
-
         <button className="flex w-full items-center gap-3 rounded-xl px-1 py-1 text-left transition-colors hover:bg-white/[0.04]">
           <Avatar name={userName} />
           <span className="min-w-0 flex-1">

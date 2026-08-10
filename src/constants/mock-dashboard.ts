@@ -86,8 +86,28 @@ export const MOCK_WALLET: ConnectedWallet = {
 export const MOCK_SAVINGS: SavingsVault = {
   totalSavedUsd: 1256.78,
   changeThisMonthUsd: 256.3,
-  autoSavePercent: 20,
-  vaultAddress: '0x3f8B1a2C9d0E4f5A6b7C8d9E0f1A2b3C4d5Eab21',
+  preference: { selected: 20 },
+  wallet: {
+    isConnected: true,
+    address: '0x3f8B1a2C9d0E4f5A6b7C8d9E0f1A2b3C4d5Eab21',
+    network: 'Ethereum Mainnet',
+  },
+};
+
+/** A second mock export for previewing the "no savings wallet connected" empty state. */
+export const MOCK_SAVINGS_DISCONNECTED: SavingsVault = {
+  totalSavedUsd: 0,
+  changeThisMonthUsd: 0,
+  preference: { selected: 20 },
+  wallet: { isConnected: false },
+};
+
+/** Sample realized profit used to preview the savings confirmation flow. */
+export const MOCK_SAVINGS_CONFIRMATION_PROFIT = 100;
+
+export const MOCK_FEE_BREAKDOWN = {
+  networkFeeUsd: 0.12,
+  wurdiFeeUsd: 0, // V1 is free — see FeeBreakdown component
 };
 
 export const MOCK_INSIGHTS: InsightItem[] = [

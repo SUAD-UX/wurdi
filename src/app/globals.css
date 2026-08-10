@@ -107,8 +107,8 @@
   --radius-card: var(--radius-card);
 
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
-  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
 }
 
 body {
@@ -206,4 +206,3 @@ body::after {
     transform: translateY(calc(var(--float-distance) * -1));
   }
 }
-

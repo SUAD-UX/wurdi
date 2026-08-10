@@ -17,6 +17,7 @@ import {
   MOCK_TRADES,
   MOCK_WALLET,
   MOCK_SAVINGS,
+  MOCK_SAVINGS_CONFIRMATION_PROFIT,
   MOCK_INSIGHTS,
 } from '@/constants/mock-dashboard';
 
@@ -68,7 +69,10 @@ export default function DashboardPage() {
             {/* Right column */}
             <div className="flex flex-col gap-6">
               <ConnectedWalletCard wallet={MOCK_WALLET} />
-              <SavingsVaultCard vault={MOCK_SAVINGS} />
+              <SavingsVaultCard
+                vault={MOCK_SAVINGS}
+                previewProfitUsd={MOCK_SAVINGS_CONFIRMATION_PROFIT}
+              />
               <InsightsCard insights={MOCK_INSIGHTS} />
               <QuickActions />
             </div>
