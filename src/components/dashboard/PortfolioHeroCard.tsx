@@ -32,12 +32,23 @@ export interface PortfolioHeroCardProps {
  *
  * LiquidCard remains available and untouched for other feature moments — this
  * card just doesn't use it.
+ *
+ * RADIUS OVERRIDE: set via inline `style`, not a Tailwind className. GlassCard's
+ * own default radius comes from a `rounded-[var(--radius-card)]` class; two
+ * different bracket-arbitrary radius classes aren't always reliably deduplicated
+ * by tailwind-merge, so which one actually wins in the generated stylesheet can
+ * be ambiguous. An inline style always wins the CSS cascade over any class, so
+ * this guarantees the 32px radius regardless of that ambiguity or build caching.
  */
 export function PortfolioHeroCard({ snapshot, performance }: PortfolioHeroCardProps) {
   const isPositive = snapshot.changeUsd24h >= 0;
 
   return (
-    <GlassCard strong className="rounded-[2rem] p-8 sm:p-9">
+    <GlassCard
+      strong
+      className="p-8 sm:p-9"
+      style={{ borderRadius: '2rem' }} // inline style always wins the cascade — see note above
+    >
       {/* Permanent, very faint internal glow — distinct from GlassCard's hover-only
           interactive glow. Deliberately large-radius and low-opacity so it reads as
           diffuse atmosphere soaked into the glass, not a bounded ellipse/shape sitting
