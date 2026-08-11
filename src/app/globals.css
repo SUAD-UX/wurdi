@@ -51,8 +51,8 @@
   --float-duration: 6s;
 
   /* --- Atmospheric background layers --- */
-  --wurdi-bg-grid-opacity: 0.14;
-  --wurdi-bg-candles-opacity: 0.12;
+  --wurdi-bg-grid-opacity: 0.18;
+  --wurdi-bg-candles-opacity: 0.16;
 }
 
 /* Light theme — same token names, different values. Toggle with
@@ -144,9 +144,9 @@ body::before {
   z-index: -3;
   pointer-events: none;
   background:
-    radial-gradient(55% 40% at 12% 0%, rgba(18, 185, 129, 0.12), transparent 70%),
-    radial-gradient(48% 38% at 100% 20%, rgba(89, 201, 214, 0.075), transparent 72%),
-    radial-gradient(42% 32% at 45% 100%, rgba(111, 207, 174, 0.06), transparent 75%);
+    radial-gradient(55% 40% at 12% 0%, rgba(18, 185, 129, 0.15), transparent 70%),
+    radial-gradient(48% 38% at 100% 20%, rgba(89, 201, 214, 0.09), transparent 72%),
+    radial-gradient(42% 32% at 45% 100%, rgba(111, 207, 174, 0.075), transparent 75%);
 }
 
 /* Faint market grid — horizontal/vertical lines, like a chart backdrop */

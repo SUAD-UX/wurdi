@@ -13,19 +13,25 @@ export interface PortfolioHeroCardProps {
 /**
  * The primary "total portfolio value" panel.
  *
- * REDESIGNED per direct feedback on the rendered page: the previous organic/
- * LiquidCard blob treatment read as a plain oval at this card's wide aspect
- * ratio, not as premium liquid glass. This version drops the organic silhouette
- * entirely and uses a sculpted rounded-rectangle glass panel instead — same
- * glass material (GlassCard: translucent fill, backdrop blur, thin border, top-left
- * reflection, soft ambient shadow) but with a wider corner radius (32px, i.e.
- * within the requested 28-36px range) for a premium terminal feel, plus a
- * permanent (not hover-only) faint internal emerald glow specific to this hero
- * moment — GlassCard's own glow layer is hover-only by design, so it's composed
- * here rather than changed globally.
+ * Sculpted rounded-rectangle glass panel — no organic/oval/blob treatment.
+ * Built on GlassCard (translucent fill, backdrop blur, thin border, top-left
+ * reflection, soft ambient shadow) with a wider corner radius (32px, within the
+ * 28-36px range) for a premium terminal feel.
  *
- * LiquidCard itself is untouched and still available for other feature moments
- * (see components/ui/LiquidCard.tsx) — this card just no longer uses it.
+ * Two things were actually causing the "oval" look on the rendered page, both
+ * fixed here:
+ *   1. The chart (PerformanceAreaChart) had no explicit Y-axis domain, so its
+ *      area fill ran from the line down to y=0 — since portfolio values are
+ *      ~$11-13K, that filled almost the whole chart height with solid green.
+ *      Fixed in the chart component itself (domain padded to the data's own
+ *      min/max) so it now reads as a thin line with a faint fade, not a block.
+ *   2. The permanent internal glow used a small, tightly-bounded radial-gradient,
+ *      which combined with the chart fill read as a distinct green ellipse
+ *      sitting on the panel. Widened and softened so it reads as diffuse
+ *      atmosphere instead of a shape.
+ *
+ * LiquidCard remains available and untouched for other feature moments — this
+ * card just doesn't use it.
  */
 export function PortfolioHeroCard({ snapshot, performance }: PortfolioHeroCardProps) {
   const isPositive = snapshot.changeUsd24h >= 0;
@@ -33,11 +39,14 @@ export function PortfolioHeroCard({ snapshot, performance }: PortfolioHeroCardPr
   return (
     <GlassCard strong className="rounded-[2rem] p-8 sm:p-9">
       {/* Permanent, very faint internal glow — distinct from GlassCard's hover-only
-          interactive glow. Kept subtle: this is atmosphere, not a spotlight. */}
+          interactive glow. Deliberately large-radius and low-opacity so it reads as
+          diffuse atmosphere soaked into the glass, not a bounded ellipse/shape sitting
+          on top of the panel — a tighter, higher-opacity version of this is what was
+          likely reading as an "oval" before. */}
       <div
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
-          background: 'radial-gradient(42% 55% at 16% 12%, rgba(18,185,129,0.09), transparent 72%)',
+          background: 'radial-gradient(85% 140% at 8% 0%, rgba(18,185,129,0.055), transparent 78%)',
           borderRadius: 'inherit',
         }}
         aria-hidden="true"
