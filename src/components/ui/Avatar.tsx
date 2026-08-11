@@ -4,10 +4,11 @@ export interface AvatarProps {
   name: string;
   imageUrl?: string;
   className?: string;
+  title?: string;
 }
 
 /** Circular avatar with initials fallback when no image is provided. */
-export function Avatar({ name, imageUrl, className }: AvatarProps) {
+export function Avatar({ name, imageUrl, className, title }: AvatarProps) {
   const initials = name
     .split(' ')
     .map((part) => part[0])
@@ -21,6 +22,7 @@ export function Avatar({ name, imageUrl, className }: AvatarProps) {
       <img
         src={imageUrl}
         alt={name}
+        title={title}
         className={cn('h-9 w-9 rounded-full object-cover', className)}
       />
     );
@@ -28,6 +30,7 @@ export function Avatar({ name, imageUrl, className }: AvatarProps) {
 
   return (
     <div
+      title={title}
       className={cn(
         'bg-primary/15 text-secondary flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold',
         className,

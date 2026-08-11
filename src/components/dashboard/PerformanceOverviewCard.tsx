@@ -19,15 +19,15 @@ export function PerformanceOverviewCard({ data }: PerformanceOverviewCardProps) 
 
   return (
     <GlassCard className="p-6">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-foreground text-base font-medium">Performance Overview</h3>
-        <div className="border-glass-border-strong bg-glass flex items-center gap-1 rounded-full border p-1">
+        <div className="border-glass-border-strong bg-glass flex max-w-full items-center gap-1 overflow-x-auto rounded-full border p-1">
           {RANGES.map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
               className={cn(
-                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
                 range === r
                   ? 'bg-primary text-black'
                   : 'text-foreground-subtle hover:text-foreground',
