@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import {
   AreaChart,
   Area,
@@ -41,12 +42,14 @@ export function PerformanceAreaChart({
   detailed = false,
   height = 240,
 }: PerformanceAreaChartProps) {
+  const gradientId = `performance-gradient-${useId()}`;
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 8, right: detailed ? 12 : 0, bottom: 0, left: 0 }}>
         <defs>
-          <linearGradient id="performance-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-emerald-primary)" stopOpacity={0.4} />
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--color-emerald-primary)" stopOpacity={0.16} />
             <stop offset="100%" stopColor="var(--color-emerald-primary)" stopOpacity={0} />
           </linearGradient>
         </defs>
@@ -75,7 +78,9 @@ export function PerformanceAreaChart({
           dataKey="valueUsd"
           stroke="var(--color-emerald-primary)"
           strokeWidth={2}
-          fill="url(#performance-gradient)"
+          strokeLinecap="round"
+          fill={`url(#${gradientId})`}
+          isAnimationActive={false}
         />
       </AreaChart>
     </ResponsiveContainer>

@@ -23,7 +23,7 @@ import {
 
 export default function DashboardPage() {
   return (
-    <div className="bg-background flex min-h-screen">
+    <div className="flex min-h-screen">
       <Sidebar userName={MOCK_USER_NAME} walletAddress={MOCK_WALLET.address} />
 
       <main className="flex-1 overflow-y-auto px-8 py-8 lg:px-10">
