@@ -1,4 +1,5 @@
 import { DashboardShell } from '@/components/shared/DashboardShell';
+import { ScrollReveal } from '@/components/shared/ScrollReveal';
 import { PortfolioHeroCard } from '@/components/dashboard/PortfolioHeroCard';
 import { PnLMetricCard } from '@/components/pnl/PnLMetricCard';
 import { PerformanceOverviewCard } from '@/components/dashboard/PerformanceOverviewCard';
@@ -20,6 +21,13 @@ import {
   MOCK_INSIGHTS,
 } from '@/constants/mock-dashboard';
 
+const PNL_TILES = [
+  { label: 'Daily PnL', ...MOCK_PNL.daily, trend: MOCK_PNL_TRENDS.daily },
+  { label: 'Weekly PnL', ...MOCK_PNL.weekly, trend: MOCK_PNL_TRENDS.weekly },
+  { label: 'Monthly PnL', ...MOCK_PNL.monthly, trend: MOCK_PNL_TRENDS.monthly },
+  { label: 'All Time PnL', ...MOCK_PNL.allTime, trend: MOCK_PNL_TRENDS.allTime },
+];
+
 export default function DashboardPage() {
   return (
     <DashboardShell
@@ -31,48 +39,48 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         {/* Left column */}
         <div className="flex flex-col gap-6">
-          <PortfolioHeroCard snapshot={MOCK_PORTFOLIO} performance={MOCK_PERFORMANCE} />
+          <ScrollReveal>
+            <PortfolioHeroCard snapshot={MOCK_PORTFOLIO} performance={MOCK_PERFORMANCE} />
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <PnLMetricCard
-              label="Daily PnL"
-              valueUsd={MOCK_PNL.daily.valueUsd}
-              percent={MOCK_PNL.daily.percent}
-              trend={MOCK_PNL_TRENDS.daily}
-            />
-            <PnLMetricCard
-              label="Weekly PnL"
-              valueUsd={MOCK_PNL.weekly.valueUsd}
-              percent={MOCK_PNL.weekly.percent}
-              trend={MOCK_PNL_TRENDS.weekly}
-            />
-            <PnLMetricCard
-              label="Monthly PnL"
-              valueUsd={MOCK_PNL.monthly.valueUsd}
-              percent={MOCK_PNL.monthly.percent}
-              trend={MOCK_PNL_TRENDS.monthly}
-            />
-            <PnLMetricCard
-              label="All Time PnL"
-              valueUsd={MOCK_PNL.allTime.valueUsd}
-              percent={MOCK_PNL.allTime.percent}
-              trend={MOCK_PNL_TRENDS.allTime}
-            />
+            {PNL_TILES.map((tile, index) => (
+              <ScrollReveal key={tile.label} delay={index * 0.06}>
+                <PnLMetricCard
+                  label={tile.label}
+                  valueUsd={tile.valueUsd}
+                  percent={tile.percent}
+                  trend={tile.trend}
+                />
+              </ScrollReveal>
+            ))}
           </div>
 
-          <PerformanceOverviewCard data={MOCK_PERFORMANCE} />
-          <RecentTradesCard trades={MOCK_TRADES} />
+          <ScrollReveal>
+            <PerformanceOverviewCard data={MOCK_PERFORMANCE} />
+          </ScrollReveal>
+          <ScrollReveal>
+            <RecentTradesCard trades={MOCK_TRADES} />
+          </ScrollReveal>
         </div>
 
         {/* Right column */}
         <div className="flex flex-col gap-6">
-          <ConnectedWalletCard wallet={MOCK_WALLET} />
-          <SavingsVaultCard
-            vault={MOCK_SAVINGS}
-            previewProfitUsd={MOCK_SAVINGS_CONFIRMATION_PROFIT}
-          />
-          <InsightsCard insights={MOCK_INSIGHTS} />
-          <QuickActions />
+          <ScrollReveal delay={0.05}>
+            <ConnectedWalletCard wallet={MOCK_WALLET} />
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <SavingsVaultCard
+              vault={MOCK_SAVINGS}
+              previewProfitUsd={MOCK_SAVINGS_CONFIRMATION_PROFIT}
+            />
+          </ScrollReveal>
+          <ScrollReveal delay={0.15}>
+            <InsightsCard insights={MOCK_INSIGHTS} />
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <QuickActions />
+          </ScrollReveal>
         </div>
       </div>
     </DashboardShell>

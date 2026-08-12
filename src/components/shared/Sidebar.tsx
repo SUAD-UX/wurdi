@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Sprout } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '@/constants/navigation';
 import { Avatar } from '@/components/ui/Avatar';
+import { WurdiMark } from '@/components/shared/WurdiMark';
 import { truncateAddress } from '@/utils/format';
 
 export interface SidebarProps {
@@ -34,8 +35,8 @@ export function Sidebar({ userName, walletAddress, variant = 'full', onNavigate 
       <div className={cn('w-full', isRail && 'flex flex-col items-center')}>
         <div className={cn('mb-10', isRail ? 'flex justify-center' : '')}>
           <div className={cn('flex items-center gap-2', isRail ? 'mb-0' : 'mb-3')}>
-            <div className="bg-primary/15 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
-              <Sprout className="text-secondary h-[18px] w-[18px]" strokeWidth={2} />
+            <div className="text-secondary flex h-9 w-9 shrink-0 items-center justify-center">
+              <WurdiMark size={36} className="h-9 w-9" />
             </div>
             {!isRail && (
               <span className="text-foreground text-lg font-semibold tracking-wide">WURDI</span>

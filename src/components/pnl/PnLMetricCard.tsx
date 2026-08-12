@@ -17,14 +17,14 @@ export function PnLMetricCard({ label, valueUsd, percent, trend }: PnLMetricCard
   const sparklineData = trend.map((value) => ({ value }));
 
   return (
-    <GlassCard className="p-5">
-      <p className="text-foreground-subtle mb-2 text-sm">{label}</p>
+    <GlassCard className="min-w-0 p-5">
+      <p className="text-foreground-subtle mb-2 truncate text-sm">{label}</p>
       <p
-        className={`flex items-center gap-1 text-lg font-semibold ${
+        className={`flex min-w-0 flex-wrap items-center gap-1 text-base font-semibold break-words sm:text-lg ${
           isPositive ? 'text-secondary' : 'text-loss'
         }`}
       >
-        <Icon className="h-4 w-4" strokeWidth={2.5} />
+        <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} />
         {formatSignedCurrency(valueUsd)}
       </p>
       <p className="text-foreground-subtle mt-0.5 text-xs">{formatPercent(percent)}</p>

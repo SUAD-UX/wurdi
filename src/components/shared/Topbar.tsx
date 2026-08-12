@@ -1,5 +1,6 @@
 import { Bell, ChevronDown, Globe, Menu } from 'lucide-react';
 import { IconButton } from '@/components/ui/IconButton';
+import { SearchTrigger } from '@/components/shared/SearchTrigger';
 
 export interface TopbarProps {
   userName: string;
@@ -7,10 +8,17 @@ export interface TopbarProps {
   hasNotifications?: boolean;
   /** Present only on mobile — opens the off-canvas nav drawer. */
   onMenuClick?: () => void;
+  onSearchClick: () => void;
 }
 
 /** Page header: personalized greeting on the left, global controls on the right. */
-export function Topbar({ userName, network, hasNotifications, onMenuClick }: TopbarProps) {
+export function Topbar({
+  userName,
+  network,
+  hasNotifications,
+  onMenuClick,
+  onSearchClick,
+}: TopbarProps) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
 
@@ -33,6 +41,8 @@ export function Topbar({ userName, network, hasNotifications, onMenuClick }: Top
       </div>
 
       <div className="flex items-center gap-3">
+        <SearchTrigger onClick={onSearchClick} />
+
         <IconButton aria-label="Notifications" className="relative">
           <Bell className="h-[18px] w-[18px]" strokeWidth={2} />
           {hasNotifications && (

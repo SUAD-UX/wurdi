@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Sidebar } from '@/components/shared/Sidebar';
 import { MobileDrawer } from '@/components/shared/MobileDrawer';
 import { Topbar } from '@/components/shared/Topbar';
+import { SearchPalette } from '@/components/shared/SearchPalette';
 
 export interface DashboardShellProps {
   userName: string;
@@ -15,8 +16,8 @@ export interface DashboardShellProps {
 
 /**
  * The one responsive layout every dashboard route renders inside — there is no
- * separate mobile/tablet page or route, just CSS breakpoints plus one bit of
- * client state (mobile drawer open/closed):
+ * separate mobile/tablet page or route, just CSS breakpoints plus two bits of
+ * client state (mobile drawer open/closed, search palette open/closed):
  *
  *   < md   (mobile)  — Sidebar hidden, hamburger in Topbar opens <MobileDrawer>
  *   md-xl  (tablet)  — <Sidebar variant="rail"> icon-only strip, always visible
@@ -34,6 +35,18 @@ export function DashboardShell({
   children,
 }: DashboardShellProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="bg-background flex min-h-screen">
@@ -55,6 +68,8 @@ export function DashboardShell({
         walletAddress={walletAddress}
       />
 
+      <SearchPalette isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
       <main className="min-w-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
           <Topbar
@@ -62,6 +77,7 @@ export function DashboardShell({
             network={network}
             hasNotifications={hasNotifications}
             onMenuClick={() => setIsMobileNavOpen(true)}
+            onSearchClick={() => setIsSearchOpen(true)}
           />
           {children}
         </div>
