@@ -14,6 +14,12 @@ export interface DashboardShellProps {
   children: ReactNode;
 }
 
+interface CurrentUserState {
+  userName: string;
+  walletAddress: string;
+  network: string;
+}
+
 /**
  * The one responsive layout every dashboard route renders inside — there is no
  * separate mobile/tablet page or route, just CSS breakpoints plus two bits of
@@ -36,6 +42,11 @@ export function DashboardShell({
 }: DashboardShellProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<CurrentUserState>({
+    userName,
+    walletAddress,
+    network,
+  });
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -48,24 +59,72 @@ export function DashboardShell({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    let ignore = false;
+
+    const loadCurrentUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me', { cache: 'no-store' });
+        if (ignore) {
+          return;
+        }
+
+        if (!response.ok) {
+          setCurrentUser({ userName, walletAddress, network });
+          return;
+        }
+
+        const data = await response.json();
+        if (!data?.user) {
+          setCurrentUser({ userName, walletAddress, network });
+          return;
+        }
+
+        setCurrentUser({
+          userName: data.user.displayName ?? userName,
+          walletAddress: data.user.walletAddress ?? walletAddress,
+          network: data.user.network ?? network,
+        });
+      } catch {
+        if (!ignore) {
+          setCurrentUser({ userName, walletAddress, network });
+        }
+      }
+    };
+
+    void loadCurrentUser();
+
+    return () => {
+      ignore = true;
+    };
+  }, [network, userName, walletAddress]);
+
   return (
     <div className="bg-background flex min-h-screen">
       {/* Tablet: collapsed icon rail */}
       <div className="hidden md:flex xl:hidden">
-        <Sidebar variant="rail" userName={userName} walletAddress={walletAddress} />
+        <Sidebar
+          variant="rail"
+          userName={currentUser.userName}
+          walletAddress={currentUser.walletAddress}
+        />
       </div>
 
       {/* Desktop: full sidebar */}
       <div className="hidden xl:flex">
-        <Sidebar variant="full" userName={userName} walletAddress={walletAddress} />
+        <Sidebar
+          variant="full"
+          userName={currentUser.userName}
+          walletAddress={currentUser.walletAddress}
+        />
       </div>
 
       {/* Mobile: off-canvas drawer, opened via the Topbar hamburger */}
       <MobileDrawer
         isOpen={isMobileNavOpen}
         onClose={() => setIsMobileNavOpen(false)}
-        userName={userName}
-        walletAddress={walletAddress}
+        userName={currentUser.userName}
+        walletAddress={currentUser.walletAddress}
       />
 
       <SearchPalette isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
@@ -73,8 +132,8 @@ export function DashboardShell({
       <main className="min-w-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
           <Topbar
-            userName={userName}
-            network={network}
+            userName={currentUser.userName}
+            network={currentUser.network}
             hasNotifications={hasNotifications}
             onMenuClick={() => setIsMobileNavOpen(true)}
             onSearchClick={() => setIsSearchOpen(true)}

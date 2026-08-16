@@ -15,30 +15,59 @@ type Theme = 'dark' | 'light';
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>('dark');
 
-  // Reads the persisted choice once on mount. This genuinely can't be a lazy
-  // useState initializer: layout.tsx statically renders data-theme="dark" on
-  // <html> for SSR, so reading localStorage during the initial render (client
-  // or server) risks a hydration mismatch. An effect — synchronizing React
-  // state with an external system (localStorage), per React's own docs — is
-  // the correct tool here; this is the documented exception to "don't setState
-  // in an effect" (react.dev/learn/you-might-not-need-an-effect).
   useEffect(() => {
-    const stored = window.localStorage.getItem('wurdi-theme') as Theme | null;
-    if (stored) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTheme(stored);
+    let cancelled = false;
+
+    async function loadTheme() {
+      try {
+        const response = await fetch('/api/auth/me', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('Not authenticated');
+        }
+
+        const data = await response.json();
+        if (!cancelled && data?.user?.preferences?.theme) {
+          setTheme(data.user.preferences.theme);
+          document.documentElement.dataset.theme = data.user.preferences.theme;
+          return;
+        }
+      } catch {
+        const stored = window.localStorage.getItem('wurdi-theme') as Theme | null;
+        if (!cancelled && stored) {
+          setTheme(stored);
+          document.documentElement.dataset.theme = stored;
+        }
+      }
     }
+
+    void loadTheme();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Keeps the <html data-theme> attribute in sync with React state, instead of
-  // mutating the DOM directly inside the click handler below.
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
-  function handleToggle(next: Theme) {
+  async function handleToggle(next: Theme) {
     setTheme(next);
     window.localStorage.setItem('wurdi-theme', next);
+
+    try {
+      const response = await fetch('/api/auth/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme: next }),
+      });
+
+      if (!response.ok) {
+        return;
+      }
+    } catch {
+      // Ignore storage-only fallback when a user is not authenticated.
+    }
   }
 
   return (

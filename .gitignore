@@ -5,3 +5,10 @@ build
 *.log
 .DS_Store
 tsconfig.tsbuildinfo
+.env
+.env.*
+!.env.example
+.open-next
+.wrangler
+.dev.vars*
+!.dev.vars.example

@@ -1,30 +1,46 @@
+import { BarChart3 } from 'lucide-react';
 import { DashboardShell } from '@/components/shared/DashboardShell';
 import { ScrollReveal } from '@/components/shared/ScrollReveal';
 import { PerformanceOverviewCard } from '@/components/dashboard/PerformanceOverviewCard';
 import { InsightsCard } from '@/components/analytics/InsightsCard';
-import {
-  MOCK_USER_NAME,
-  MOCK_PERFORMANCE,
-  MOCK_INSIGHTS,
-  MOCK_WALLET,
-} from '@/constants/mock-dashboard';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { getAuthenticatedUser } from '@/lib/auth/user';
+import { prisma } from '@/lib/db';
+import { MOCK_USER_NAME, MOCK_WALLET } from '@/constants/mock-dashboard';
 
-export default function AnalyticsPage() {
+export default async function AnalyticsPage() {
+  const currentUser = await getAuthenticatedUser();
+  const tradeCount = currentUser
+    ? await prisma.tradeRecord.count({ where: { userId: currentUser.id } })
+    : 0;
+
+  const holdingsCount = currentUser
+    ? await prisma.portfolioHolding.count({ where: { userId: currentUser.id } })
+    : 0;
+
   return (
     <DashboardShell
-      userName={MOCK_USER_NAME}
-      walletAddress={MOCK_WALLET.address}
-      network={MOCK_WALLET.network}
+      userName={currentUser?.displayName ?? MOCK_USER_NAME}
+      walletAddress={currentUser?.walletAddress ?? MOCK_WALLET.address}
+      network={currentUser?.network ?? MOCK_WALLET.network}
       hasNotifications
     >
-      <div className="flex flex-col gap-6">
-        <ScrollReveal>
-          <PerformanceOverviewCard data={MOCK_PERFORMANCE} />
-        </ScrollReveal>
-        <ScrollReveal delay={0.05}>
-          <InsightsCard insights={MOCK_INSIGHTS} />
-        </ScrollReveal>
-      </div>
+      {tradeCount === 0 && holdingsCount === 0 ? (
+        <EmptyState
+          icon={BarChart3}
+          title="No analytics yet"
+          description="Portfolio metrics and PnL history will appear here once the authenticated wallet has real holdings or trade records."
+        />
+      ) : (
+        <div className="flex flex-col gap-6">
+          <ScrollReveal>
+            <PerformanceOverviewCard data={[]} />
+          </ScrollReveal>
+          <ScrollReveal delay={0.05}>
+            <InsightsCard insights={[]} />
+          </ScrollReveal>
+        </div>
+      )}
     </DashboardShell>
   );
 }

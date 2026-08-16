@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# WURDI
 
-## Getting Started
+WURDI is a single-application Next.js product that keeps the browser as a UI layer and uses the same project for server-side auth, database access, and protected financial logic.
 
-First, run the development server:
+## Product constraints
+
+- Keep the current UI/UX intact.
+- Do not create a separate frontend/backend split.
+- Do not implement custodial wallet behavior.
+- Do not request private keys or seed phrases.
+- Do not fabricate balances, prices, PnL, or transaction confirmations.
+- Use the server session as the source of truth for user identity.
+- Treat browser-supplied wallet and financial values as untrusted input.
+
+## Required environment variables
+
+Copy `.env.example` to `.env.local` or `.env` for local development and set real values before running Prisma or the app.
+
+- `DATABASE_URL`: PostgreSQL connection string for Prisma and server-side data access.
+- `AUTH_SECRET`: minimum 32 characters; used to sign and verify server sessions.
+- `NEXT_PUBLIC_APP_URL`: public base URL used by the app and any callback URLs.
+- `SESSION_TTL_SECONDS`: expiration for user sessions in seconds. Defaults to 7 days.
+- `BLOCKCHAIN_PROVIDER`: `none`, `rpc`, `indexer`, or `hybrid` depending on the configured source.
+- `CHAIN_ID`: network identifier for the configured chain, defaults to `1`.
+- `RPC_URL`: blockchain JSON-RPC endpoint for provider-backed balance or transaction lookups.
+- `INDEXER_URL`: optional indexer endpoint used for normalized blockchain event or transaction data.
+
+## Production readiness notes
+
+- PostgreSQL must be running before Prisma can push to or query a live database.
+- `AUTH_SECRET` must be set in every non-local production environment.
+- WURDI must fail safely when database connectivity or blockchain providers are unavailable.
+- Any live blockchain fetch must validate chain, wallet ownership, timestamps, transaction identifiers, and asset metadata server-side before persisting records.
+
+## Local development
 
 ```bash
+cp .env.example .env.local
+npm install
+npx prisma generate
+npx prisma validate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Cloudflare deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+WURDI is configured for the OpenNext + Wrangler Cloudflare deployment path. The repository includes the required adapter and runtime configuration, but actual deployment still requires a real Cloudflare account and project credentials.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run cloudflare:build
+npm run preview
+npm run deploy
+```
 
-## Learn More
+## Verification commands
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npx prisma generate
+npx prisma validate
+npm run lint
+npx tsc --noEmit
+npx tsx --test src/lib/pnl.test.ts src/lib/transactions.test.ts
+npm run build
+npm run cloudflare:build
+npx prisma db push
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+When PostgreSQL or the blockchain provider is unavailable, the app should report a clear unavailable state instead of pretending the service is live.

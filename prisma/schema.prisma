@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String            @id @default(cuid())
+  email          String?           @unique
+  displayName    String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  walletAddress  String?           @unique
+  wallets           Wallet[]
+  sessions          Session[]
+  preferences       UserPreference?
+  goals             SavingsGoal[]
+  alerts            UserAlert[]
+  savingsRecords    SavingsRecord[]
+  transactionIntents TransactionIntent[]
+  portfolioHoldings PortfolioHolding[]
+  tradeRecords      TradeRecord[]
+  pnlSnapshots      PnLSnapshot[]
+
+  @@map("users")
+}
+
+model Wallet {
+  id            String    @id @default(cuid())
+  userId        String
+  address       String    @unique
+  chainId       Int       @default(1)
+  isPrimary     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  lastVerifiedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+model Session {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  userAgent  String?
+  ipAddress  String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model WalletChallenge {
+  id         String    @id @default(cuid())
+  walletAddress String
+  nonce      String    @unique
+  chainId    Int       @default(1)
+  message    String
+  issuedAt   DateTime  @default(now())
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([walletAddress])
+  @@index([expiresAt])
+  @@map("wallet_challenges")
+}
+
+model UserPreference {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  theme                String   @default("dark")
+  notificationsEnabled Boolean  @default(true)
+  savingsPreference    Int      @default(20)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model SavingsGoal {
+  id            String    @id @default(cuid())
+  userId        String
+  name          String
+  targetAmount  Decimal   @db.Decimal(18, 2)
+  currentAmount Decimal   @db.Decimal(18, 2) @default(0)
+  currency      String    @default("USD")
+  targetDate    DateTime?
+  status        String    @default("active")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("savings_goals")
+}
+
+model SavingsRecord {
+  id         String    @id @default(cuid())
+  userId     String
+  kind       String    @default("profit_allocation")
+  amount     Decimal   @db.Decimal(18, 2)
+  percentage Int       @default(20)
+  status     String    @default("pending")
+  reference  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("savings_records")
+}
+
+model TransactionIntent {
+  id                String    @id @default(cuid())
+  userId            String
+  walletAddress     String
+  chainId           Int
+  destinationAddress String
+  tokenAddress      String?
+  assetSymbol       String?
+  assetName         String?
+  amount            Decimal   @db.Decimal(38, 18)
+  decimals          Int       @default(18)
+  requestId         String    @unique
+  status            String    @default("prepared")
+  transactionHash   String?
+  expiresAt         DateTime
+  confirmedAt       DateTime?
+  failureReason     String?
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, createdAt])
+  @@index([walletAddress, chainId])
+  @@map("transaction_intents")
+}
+
+model UserAlert {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+  @@map("user_alerts")
+}
+
+model Asset {
+  id         String            @id @default(cuid())
+  symbol     String
+  name       String
+  address    String?
+  chainId    Int
+  decimals   Int               @default(18)
+  isNative   Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  holdings   PortfolioHolding[]
+  trades     TradeRecord[]
+
+  @@unique([chainId, address])
+  @@index([symbol, chainId])
+  @@map("assets")
+}
+
+model PortfolioHolding {
+  id            String   @id @default(cuid())
+  userId        String
+  assetId       String
+  walletAddress String
+  chainId       Int
+  quantity      Decimal  @db.Decimal(38, 18)
+  averageCost   Decimal  @db.Decimal(38, 18)
+  costBasis     Decimal  @db.Decimal(38, 18)
+  currentPrice  Decimal  @db.Decimal(38, 18)
+  totalValue    Decimal  @db.Decimal(38, 18)
+  unrealizedPnl Decimal  @db.Decimal(38, 18) @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, walletAddress, assetId, chainId])
+  @@index([userId, walletAddress])
+  @@map("portfolio_holdings")
+}
+
+model TradeRecord {
+  id               String   @id @default(cuid())
+  userId           String
+  assetId          String
+  walletAddress    String
+  chainId          Int
+  transactionHash  String?
+  externalId       String?
+  type             String
+  quantity         Decimal  @db.Decimal(38, 18)
+  unitPrice        Decimal  @db.Decimal(38, 18)
+  totalValue       Decimal  @db.Decimal(38, 18)
+  fees             Decimal  @db.Decimal(38, 18) @default(0)
+  status           String   @default("confirmed")
+  source           String   @default("manual")
+  timestamp        DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, transactionHash])
+  @@unique([userId, externalId])
+  @@index([userId, walletAddress, timestamp])
+  @@index([assetId, timestamp])
+  @@map("trade_records")
+}
+
+model PnLSnapshot {
+  id             String   @id @default(cuid())
+  userId         String
+  walletAddress  String
+  chainId        Int
+  period         String
+  snapshotAt     DateTime
+  totalPnl       Decimal  @db.Decimal(38, 18)
+  realizedPnl    Decimal  @db.Decimal(38, 18)
+  unrealizedPnl  Decimal  @db.Decimal(38, 18)
+  portfolioValue Decimal  @db.Decimal(38, 18)
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, period, snapshotAt])
+  @@map("pnl_snapshots")
+}
