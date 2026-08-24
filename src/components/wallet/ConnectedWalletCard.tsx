@@ -27,6 +27,9 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
   const [displayAddress, setDisplayAddress] = useState(wallet.address);
   const [network, setNetwork] = useState(wallet.network);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+  const [syncError, setSyncError] = useState('');
 
   const refreshSession = useCallback(async () => {
     try {
@@ -176,6 +179,52 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
     }
   }
 
+  async function handleSync() {
+    setSyncMessage('');
+    setSyncError('');
+    setIsSyncing(true);
+
+    try {
+      const res = await fetch('/api/wallet/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync' }),
+        cache: 'no-store',
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        const message = data?.message ?? `Sync failed with status ${res.status}`;
+        setSyncError(message);
+        setIsSyncing(false);
+        return;
+      }
+
+      setSyncMessage('Sync completed successfully');
+      // attempt to refresh session and any server-driven UI
+      await refreshSession();
+      // trigger portfolio/pnl refresh by fetching endpoints (clients will need to read them)
+      try {
+        await fetch('/api/portfolio', { cache: 'no-store' });
+        await fetch('/api/pnl', { cache: 'no-store' });
+      } catch {
+        // ignore — best-effort
+      }
+
+      // notify any dashboard listeners to refresh their view
+      try {
+        window.dispatchEvent(new CustomEvent('wurdi:sync'));
+      } catch {
+        // ignore — environment may not support window in tests
+      }
+    } catch (error) {
+      setSyncError(error instanceof Error ? error.message : 'Wallet sync failed.');
+    } finally {
+      setIsSyncing(false);
+    }
+  }
+
   const statusLabel =
     status === 'authenticated' ? 'Authenticated' : status === 'connecting' ? 'Connecting' : status === 'signing' ? 'Signing' : 'Disconnected';
 
@@ -221,6 +270,20 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
         </div>
       ) : null}
 
+      {syncError ? (
+        <div className="text-foreground-subtle mb-4 flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/5 px-3 py-2 text-xs">
+          <AlertTriangle className="h-3.5 w-3.5 text-rose-400" strokeWidth={2} />
+          {syncError}
+        </div>
+      ) : null}
+
+      {syncMessage ? (
+        <div className="text-foreground-subtle mb-4 flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-xs">
+          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" strokeWidth={2} />
+          {syncMessage}
+        </div>
+      ) : null}
+
       <div className="border-glass-border flex items-center justify-between border-t pt-4">
         <div>
           <p className="text-foreground-subtle text-xs">Portfolio Sync</p>
@@ -233,9 +296,24 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
               <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
               Disconnect
             </Button>
-            <Button variant="secondary" size="sm">
-              <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-              Sync Now
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleSync}
+              disabled={isSyncing}
+              aria-disabled={isSyncing}
+            >
+              {isSyncing ? (
+                <>
+                  <LoaderCircle className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+                  Syncing
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
+                  Sync Now
+                </>
+              )}
             </Button>
           </div>
         ) : (

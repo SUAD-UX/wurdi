@@ -21,7 +21,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       <div
         ref={ref}
         className={cn(
-          'relative isolate overflow-hidden rounded-[var(--radius-card)] border backdrop-blur-[var(--glass-blur)]',
+          'relative isolate overflow-visible rounded-[var(--radius-card)] border backdrop-blur-[var(--glass-blur)]',
           'transition-[transform,box-shadow,border-color] duration-[var(--duration-liquid)] ease-[var(--ease-liquid)]',
           strong ? 'border-glass-border-strong bg-glass-strong' : 'border-glass-border bg-glass',
           'shadow-[var(--shadow-ambient)]',

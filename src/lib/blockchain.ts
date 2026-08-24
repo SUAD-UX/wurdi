@@ -207,23 +207,99 @@ export async function verifyTransactionOnChain({
   }
 }
 
-export async function fetchWalletBalance() {
+export async function fetchWalletBalance(address: string) {
   const config = getBlockchainProviderConfig();
 
   if (config.provider === 'none') {
     return {
       ok: false,
       status: 'unavailable',
-      reason: 'Wallet balance retrieval is not configured for a live RPC provider in this environment.',
+      reason: 'Wallet balance retrieval is not configured for a live RPC/indexer provider in this environment.',
       balances: [],
     };
   }
 
+  // Helper: convert hex wei (0x...) to decimal ETH string with up to 18 decimals
+  function weiHexToEthString(hex: string) {
+    try {
+      const wei = BigInt(hex);
+      const WEI_PER_ETH = BigInt('1000000000000000000');
+      const integer = wei / WEI_PER_ETH;
+      const fraction = wei % WEI_PER_ETH;
+      if (fraction === BigInt(0)) return integer.toString();
+      // fractional part padded to 18 digits, then trimmed
+      let frac = fraction.toString().padStart(18, '0');
+      // trim trailing zeros
+      frac = frac.replace(/0+$/, '');
+      return `${integer.toString()}.${frac}`;
+    } catch (e) {
+      return '0';
+    }
+  }
+
+  // Try RPC-based native balance retrieval (eth_getBalance)
+  if (config.rpcUrl) {
+    try {
+      const res = await fetch(config.rpcUrl, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_getBalance', params: [address, 'latest'] }),
+      });
+
+      if (!res.ok) {
+        return {
+          ok: false,
+          status: 'unavailable',
+          reason: 'The RPC provider returned a non-OK response.',
+          balances: [],
+        };
+      }
+
+      const data = await res.json();
+      if (data.error) {
+        return {
+          ok: false,
+          status: 'unavailable',
+          reason: data.error.message ?? 'RPC provider error',
+          balances: [],
+        };
+      }
+
+      const result = (data.result as string | undefined) ?? '0x0';
+      const ethString = weiHexToEthString(result);
+
+      return {
+        ok: true,
+        status: 'ok',
+        provider: 'rpc',
+        balances: [
+          {
+            symbol: 'ETH',
+            name: 'Ether',
+            address: null,
+            decimals: 18,
+            quantity: ethString,
+            chainId: config.chainId,
+            isNative: true,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        status: 'unavailable',
+        reason: error instanceof Error ? error.message : 'The RPC provider could not be reached.',
+        balances: [],
+      };
+    }
+  }
+
+  // If we reach here, an indexer URL was configured but RPC was not available.
   return {
     ok: false,
     status: 'unavailable',
-    reason: 'Live blockchain balance retrieval is not yet verified in this environment. No wallet balances are treated as authoritative until a confirmed provider response is received.',
+    reason: 'An indexer URL is configured but no RPC URL is available. Token-level balances require an indexer; please provide a compatible INDEXER_URL or an RPC_URL.',
     balances: [],
-    provider: config.provider,
+    provider: 'indexer',
   };
 }
