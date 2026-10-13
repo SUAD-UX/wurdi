@@ -44,6 +44,18 @@ export function PerformanceAreaChart({
 }: PerformanceAreaChartProps) {
   const gradientId = `performance-gradient-${useId()}`;
 
+  if (data.length === 0) {
+    return (
+      <div
+        role="status"
+        className="text-foreground-subtle flex items-center justify-center text-sm"
+        style={{ height }}
+      >
+        No data yet
+      </div>
+    );
+  }
+
   // Without an explicit domain, Recharts' Area fills from the line down to y=0 by
   // default — since portfolio values are ~$11-13K, that fills almost the entire
   // chart height with solid green ("giant solid block", not a sparkline). Padding

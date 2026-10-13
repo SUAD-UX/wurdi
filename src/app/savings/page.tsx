@@ -2,7 +2,6 @@ import { DashboardShell } from '@/components/shared/DashboardShell';
 import { ScrollReveal } from '@/components/shared/ScrollReveal';
 import { SavingsVaultCard } from '@/components/savings/SavingsVaultCard';
 import {
-  MOCK_USER_NAME,
   MOCK_SAVINGS,
   MOCK_SAVINGS_CONFIRMATION_PROFIT,
   MOCK_WALLET,
@@ -11,8 +10,8 @@ import {
 export default function SavingsPage() {
   return (
     <DashboardShell
-      userName={MOCK_USER_NAME}
-      walletAddress={MOCK_WALLET.address}
+      userName=""
+      walletAddress=""
       network={MOCK_WALLET.network}
       hasNotifications
     >

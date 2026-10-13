@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { getAuthenticatedUser } from '@/lib/auth/user';
 import { prisma } from '@/lib/db';
 import { calculatePortfolioSummary } from '@/lib/pnl';
-import { MOCK_USER_NAME, MOCK_WALLET } from '@/constants/mock-dashboard';
+import { MOCK_WALLET } from '@/constants/mock-dashboard';
 import { formatCurrency } from '@/utils/format';
 
 export default async function PortfolioPage() {
@@ -46,8 +46,8 @@ export default async function PortfolioPage() {
 
   return (
     <DashboardShell
-      userName={currentUser?.displayName ?? MOCK_USER_NAME}
-      walletAddress={currentUser?.walletAddress ?? MOCK_WALLET.address}
+      userName={currentUser?.displayName ?? ''}
+      walletAddress={currentUser?.walletAddress ?? ''}
       network={currentUser?.network ?? MOCK_WALLET.network}
       hasNotifications
     >

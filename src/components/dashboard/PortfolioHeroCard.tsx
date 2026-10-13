@@ -1,6 +1,6 @@
 import { ArrowUpRight, Eye } from 'lucide-react';
+import Link from 'next/link';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { Button } from '@/components/ui/Button';
 import { PerformanceAreaChart } from '@/components/charts/PerformanceAreaChart';
 import type { PerformancePoint, PortfolioSnapshot } from '@/types/portfolio';
 import { formatCurrency, formatPercent, formatSignedCurrency } from '@/utils/format';
@@ -86,9 +86,12 @@ export function PortfolioHeroCard({ snapshot, performance }: PortfolioHeroCardPr
       </div>
 
       <div className="mt-3 flex justify-end">
-        <Button variant="secondary" size="sm">
+        <Link
+          href="/portfolio"
+          className="bg-glass-strong text-foreground border-glass-border-strong hover:border-secondary/35 hover:bg-white/[0.07] inline-flex h-8 items-center justify-center gap-1.5 rounded-full border px-3 text-xs font-medium whitespace-nowrap transition-all duration-[var(--duration-liquid)] ease-[var(--ease-liquid)] focus-visible:ring-primary/60 focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
           View Portfolio <ArrowUpRight className="h-3.5 w-3.5" />
-        </Button>
+        </Link>
       </div>
     </GlassCard>
   );

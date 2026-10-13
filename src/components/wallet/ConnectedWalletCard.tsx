@@ -51,7 +51,7 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
     } catch {
       setIsAuthenticated(false);
       setStatus('error');
-      setErrorMessage('Unable to read the current wallet session.');
+      setErrorMessage("Couldn't connect. Please try again.");
     }
   }, [wallet.address, wallet.network]);
 
@@ -83,7 +83,7 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
         if (!ignore) {
           setIsAuthenticated(false);
           setStatus('error');
-          setErrorMessage('Unable to read the current wallet session.');
+          setErrorMessage("Couldn't connect. Please try again.");
         }
       }
     };
@@ -98,7 +98,7 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
   async function handleConnect() {
     if (!window.ethereum) {
       setStatus('error');
-      setErrorMessage('Install MetaMask or another browser wallet extension to continue.');
+      setErrorMessage("Couldn't connect. Please try again.");
       return;
     }
 
@@ -156,12 +156,10 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       setStatus('authenticated');
       setErrorMessage('');
       await refreshSession();
-    } catch (error) {
+    } catch {
       setIsAuthenticated(false);
       setStatus('error');
-      setErrorMessage(
-        error instanceof Error ? error.message : 'Wallet authentication failed. Please try again.',
-      );
+      setErrorMessage("Couldn't connect. Please try again.");
     }
   }
 
@@ -175,7 +173,7 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       setErrorMessage('');
     } catch {
       setStatus('error');
-      setErrorMessage('Unable to sign out of the current wallet session.');
+      setErrorMessage("Couldn't connect. Please try again.");
     }
   }
 
@@ -195,8 +193,7 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.ok) {
-        const message = data?.message ?? `Sync failed with status ${res.status}`;
-        setSyncError(message);
+        setSyncError("Couldn't connect. Please try again.");
         setIsSyncing(false);
         return;
       }
@@ -218,8 +215,8 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       } catch {
         // ignore — environment may not support window in tests
       }
-    } catch (error) {
-      setSyncError(error instanceof Error ? error.message : 'Wallet sync failed.');
+    } catch {
+      setSyncError("Couldn't connect. Please try again.");
     } finally {
       setIsSyncing(false);
     }

@@ -6,7 +6,7 @@ import { InsightsCard } from '@/components/analytics/InsightsCard';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { getAuthenticatedUser } from '@/lib/auth/user';
 import { prisma } from '@/lib/db';
-import { MOCK_USER_NAME, MOCK_WALLET } from '@/constants/mock-dashboard';
+import { MOCK_WALLET } from '@/constants/mock-dashboard';
 
 export default async function AnalyticsPage() {
   const currentUser = await getAuthenticatedUser();
@@ -20,8 +20,8 @@ export default async function AnalyticsPage() {
 
   return (
     <DashboardShell
-      userName={currentUser?.displayName ?? MOCK_USER_NAME}
-      walletAddress={currentUser?.walletAddress ?? MOCK_WALLET.address}
+      userName={currentUser?.displayName ?? ''}
+      walletAddress={currentUser?.walletAddress ?? ''}
       network={currentUser?.network ?? MOCK_WALLET.network}
       hasNotifications
     >

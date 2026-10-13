@@ -3,13 +3,13 @@ import { DashboardShell } from '@/components/shared/DashboardShell';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { ThemeToggle } from '@/components/settings/ThemeToggle';
-import { MOCK_USER_NAME, MOCK_WALLET } from '@/constants/mock-dashboard';
+import { MOCK_WALLET } from '@/constants/mock-dashboard';
 
 export default function SettingsPage() {
   return (
     <DashboardShell
-      userName={MOCK_USER_NAME}
-      walletAddress={MOCK_WALLET.address}
+      userName=""
+      walletAddress=""
       network={MOCK_WALLET.network}
       hasNotifications
     >

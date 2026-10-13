@@ -20,7 +20,8 @@ export function Topbar({
   onSearchClick,
 }: TopbarProps) {
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const greetingText = userName.trim() ? `${greeting}, ${userName.trim()}` : 'Good morning';
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-4">
@@ -32,7 +33,7 @@ export function Topbar({
         )}
         <div className="min-w-0">
           <h1 className="text-foreground flex items-center gap-2 truncate text-xl font-semibold sm:text-2xl">
-            {greeting}, {userName} <span aria-hidden>👋</span>
+            {greetingText} <span aria-hidden>👋</span>
           </h1>
           <p className="text-foreground-subtle mt-1 hidden text-sm sm:block">
             Track. Analyze. Grow. Secure your future.

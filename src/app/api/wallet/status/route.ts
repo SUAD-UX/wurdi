@@ -48,13 +48,13 @@ export async function POST(request: Request) {
     }
 
     const balances = result.balances ?? [];
-    const native = balances.find((b: any) => b.isNative) ?? balances.find((b: any) => b.symbol === 'ETH');
+    const native = balances.find((balance) => balance.isNative) ?? balances.find((balance) => balance.symbol === 'ETH');
 
     if (!native) {
       return NextResponse.json({ ok: false, message: 'No native ETH balance was returned by the provider.' }, { status: 200 });
     }
 
-    const chainId = (result as any).chainId ?? Number(process.env.CHAIN_ID ?? '1');
+    const chainId = native.chainId ?? Number(process.env.CHAIN_ID ?? '1');
 
     const existingAsset = await prisma.asset.findFirst({ where: { chainId, address: null } });
 
@@ -121,6 +121,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, data: { holding: { id: holding.id, assetId: asset.id, walletAddress: normalized, chainId, quantity } } });
   } catch (error) {
+    console.error(
+      '[wallet-sync] Wallet sync failed:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
     return NextResponse.json(
       { ok: false, message: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 },

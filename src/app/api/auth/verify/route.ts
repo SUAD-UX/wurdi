@@ -61,6 +61,10 @@ export async function POST(request: Request) {
       { status: 200 },
     );
   } catch (error) {
+    console.error(
+      '[wallet-auth] Signature verification failed:',
+      error instanceof Error ? error.message : 'Unknown error',
+    );
     return NextResponse.json(
       {
         ok: false,

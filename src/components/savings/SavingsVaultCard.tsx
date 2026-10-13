@@ -8,6 +8,7 @@ import { SavingsPercentageSelector } from '@/components/savings/SavingsPercentag
 import type { SavingsPreference, SavingsVault } from '@/types/portfolio';
 import { calculateSavingsPreview } from '@/features/savings/calculations';
 import { formatCurrency, formatSignedCurrency, truncateAddress } from '@/utils/format';
+import { cn } from '@/lib/utils';
 
 export interface SavingsVaultCardProps {
   vault: SavingsVault;
@@ -15,6 +16,7 @@ export interface SavingsVaultCardProps {
   previewProfitUsd: number;
   onManageVault?: () => void;
   onConnectWallet?: () => void;
+  onDropdownOpenChange?: (isOpen: boolean) => void;
 }
 
 /**
@@ -29,12 +31,17 @@ export function SavingsVaultCard({
   previewProfitUsd,
   onManageVault,
   onConnectWallet,
+  onDropdownOpenChange,
 }: SavingsVaultCardProps) {
   const [preference, setPreference] = useState<SavingsPreference>(vault.preference);
+  const [percentageMenuOpen, setPercentageMenuOpen] = useState(false);
   const preview = calculateSavingsPreview(previewProfitUsd, preference);
+  const monthlyChangeUsd = Number.isFinite(vault.changeThisMonthUsd)
+    ? vault.changeThisMonthUsd
+    : 0;
 
   return (
-    <GlassCard className="p-6">
+    <GlassCard className={cn('p-6', percentageMenuOpen && 'z-40')}>
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-foreground flex items-center gap-1.5 text-sm font-medium">
           Savings Vault
@@ -64,7 +71,9 @@ export function SavingsVaultCard({
               </p>
               <p className="text-secondary mt-1.5 flex items-center gap-1 text-xs font-medium">
                 <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
-                {formatSignedCurrency(vault.changeThisMonthUsd)} this month
+                {monthlyChangeUsd === 0
+                  ? formatCurrency(0)
+                  : formatSignedCurrency(monthlyChangeUsd)} this month
               </p>
             </div>
 
@@ -79,7 +88,14 @@ export function SavingsVaultCard({
           <div className="border-glass-border mt-5 rounded-2xl border bg-white/[0.015] p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-foreground-muted text-sm">Save from profits</span>
-              <SavingsPercentageSelector value={preference} onChange={setPreference} />
+              <SavingsPercentageSelector
+                value={preference}
+                onChange={setPreference}
+                onOpenChange={(isOpen) => {
+                  setPercentageMenuOpen(isOpen);
+                  onDropdownOpenChange?.(isOpen);
+                }}
+              />
             </div>
             <div className="text-foreground-subtle space-y-1.5 text-xs">
               <p>

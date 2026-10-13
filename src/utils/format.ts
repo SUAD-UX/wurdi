@@ -5,12 +5,13 @@ export function formatCurrency(
   value: number,
   options?: { maximumFractionDigits?: number },
 ): string {
+  const safeValue = Number.isFinite(value) ? value : 0;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: options?.maximumFractionDigits ?? 2,
-  }).format(value);
+  }).format(safeValue);
 }
 
 /**
@@ -18,13 +19,14 @@ export function formatCurrency(
  */
 export function formatPercent(value: number, options?: { signed?: boolean }): string {
   const signed = options?.signed ?? true;
+  const safeValue = Number.isFinite(value) ? value : 0;
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'percent',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(Math.abs(value));
+  }).format(Math.abs(safeValue));
   if (!signed) return formatted;
-  return `${value >= 0 ? '+' : '-'}${formatted}`;
+  return `${safeValue >= 0 ? '+' : '-'}${formatted}`;
 }
 
 /**
@@ -39,6 +41,7 @@ export function truncateAddress(address: string, leading = 4, trailing = 5): str
  * Formats a signed dollar delta, e.g. 183.42 -> "+$183.42", -0.061 -> "-$0.06"
  */
 export function formatSignedCurrency(value: number): string {
-  const formatted = formatCurrency(Math.abs(value));
-  return value >= 0 ? `+${formatted}` : `-${formatted}`;
+  const safeValue = Number.isFinite(value) ? value : 0;
+  const formatted = formatCurrency(Math.abs(safeValue));
+  return safeValue >= 0 ? `+${formatted}` : `-${formatted}`;
 }

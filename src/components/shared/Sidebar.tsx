@@ -75,22 +75,28 @@ export function Sidebar({ userName, walletAddress, variant = 'full', onNavigate 
         </nav>
       </div>
 
-      <div className={cn('flex flex-col gap-4', isRail ? 'items-center' : '')}>
+      {(userName.trim() || walletAddress.trim()) && (
+        <div className={cn('flex flex-col gap-4', isRail ? 'items-center' : '')}>
         {isRail ? (
-          <Avatar name={userName} title={userName} />
+          <Avatar name={userName || walletAddress} title={userName || walletAddress} />
         ) : (
           <button className="flex w-full items-center gap-3 rounded-xl px-1 py-1 text-left transition-colors hover:bg-white/[0.04]">
-            <Avatar name={userName} />
+            <Avatar name={userName || walletAddress} />
             <span className="min-w-0 flex-1">
-              <span className="text-foreground block truncate text-sm font-medium">{userName}</span>
-              <span className="text-foreground-subtle block truncate text-xs">
-                {truncateAddress(walletAddress)}
-              </span>
+              {userName.trim() && (
+                <span className="text-foreground block truncate text-sm font-medium">{userName}</span>
+              )}
+              {walletAddress.trim() && (
+                <span className="text-foreground-subtle block truncate text-xs">
+                  {truncateAddress(walletAddress)}
+                </span>
+              )}
             </span>
             <ChevronDown className="text-foreground-subtle h-4 w-4" />
           </button>
         )}
-      </div>
+        </div>
+      )}
     </aside>
   );
 }

@@ -39,6 +39,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
           style={{
             background:
               'linear-gradient(155deg, rgba(255,255,255,var(--glass-highlight-opacity)) 0%, transparent 40%)',
+            borderRadius: 'inherit',
           }}
           aria-hidden="true"
         />
@@ -48,6 +49,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
             style={{
               background:
                 'radial-gradient(60% 50% at 30% 0%, rgba(18,185,129,var(--glow-primary-opacity)), transparent 70%)',
+              borderRadius: 'inherit',
             }}
             aria-hidden="true"
           />

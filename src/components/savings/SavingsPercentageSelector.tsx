@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { SavingsPercentage, SavingsPreference } from '@/types/portfolio';
 import {
@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 export interface SavingsPercentageSelectorProps {
   value: SavingsPreference;
   onChange: (preference: SavingsPreference) => void;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 /**
@@ -21,9 +22,26 @@ export interface SavingsPercentageSelectorProps {
  * pass" instruction. The selected value is lifted to whatever parent owns it via
  * onChange, so wiring in persistence later only touches the parent, not this file.
  */
-export function SavingsPercentageSelector({ value, onChange }: SavingsPercentageSelectorProps) {
+export function SavingsPercentageSelector({ value, onChange, onOpenChange }: SavingsPercentageSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [customInput, setCustomInput] = useState(String(value.customValue ?? ''));
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+    onOpenChange?.(false);
+  }, [onOpenChange]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        closeMenu();
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [closeMenu, isOpen]);
 
   function handleSelect(option: SavingsPercentage) {
     if (option === 'custom') {
@@ -31,20 +49,24 @@ export function SavingsPercentageSelector({ value, onChange }: SavingsPercentage
       return;
     }
     onChange({ selected: option });
-    setIsOpen(false);
+    closeMenu();
   }
 
   function handleCustomSubmit() {
     const parsed = Math.min(100, Math.max(0, Number(customInput) || 0));
     onChange({ selected: 'custom', customValue: parsed });
-    setIsOpen(false);
+    closeMenu();
   }
 
   return (
     <div className="relative">
       <button
         type="button"
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={() => {
+          const nextIsOpen = !isOpen;
+          setIsOpen(nextIsOpen);
+          onOpenChange?.(nextIsOpen);
+        }}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         className="border-glass-border-strong bg-glass text-foreground hover:border-secondary/35 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors"
@@ -61,7 +83,7 @@ export function SavingsPercentageSelector({ value, onChange }: SavingsPercentage
             aria-hidden="true"
             tabIndex={-1}
             className="fixed inset-0 z-20 cursor-default"
-            onClick={() => setIsOpen(false)}
+            onClick={closeMenu}
           />
           <div
             role="listbox"

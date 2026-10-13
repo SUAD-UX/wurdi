@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Badge } from '@/components/ui/Badge';
 import type { Trade } from '@/types/portfolio';
@@ -20,57 +21,63 @@ export function RecentTradesCard({ trades }: RecentTradesCardProps) {
     <GlassCard className="p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-foreground text-sm font-medium">Recent Trades</h3>
-        <button className="text-foreground-subtle hover:text-secondary text-xs font-medium">
+        <Link href="/trades" className="text-foreground-subtle hover:text-secondary text-xs font-medium">
           View All
-        </button>
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {trades.map((trade) => (
-          <div
-            key={trade.id}
-            className="border-glass-border rounded-2xl border bg-white/[0.015] p-4"
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="bg-primary/12 text-secondary flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold">
-                  {trade.assetSymbol.slice(0, 2)}
+      {trades.length === 0 ? (
+        <p className="text-foreground-subtle py-4 text-sm">
+          No trades yet. Connect a wallet to see your activity.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {trades.map((trade) => (
+            <div
+              key={trade.id}
+              className="border-glass-border rounded-2xl border bg-white/[0.015] p-4"
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="bg-primary/12 text-secondary flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold">
+                    {trade.assetSymbol.slice(0, 2)}
+                  </div>
+                  <span className="text-foreground text-sm font-medium">{trade.assetSymbol}</span>
                 </div>
-                <span className="text-foreground text-sm font-medium">{trade.assetSymbol}</span>
+                <Badge tone={trade.side === 'Buy' ? 'positive' : 'negative'}>{trade.side}</Badge>
               </div>
-              <Badge tone={trade.side === 'Buy' ? 'positive' : 'negative'}>{trade.side}</Badge>
-            </div>
 
-            <p className="text-foreground-subtle mb-3 text-xs">
-              {formatTradeTimestamp(trade.timestamp)}
-            </p>
+              <p className="text-foreground-subtle mb-3 text-xs">
+                {formatTradeTimestamp(trade.timestamp)}
+              </p>
 
-            <div className="mb-3 flex items-center justify-between text-sm">
-              <div>
-                <p className="text-foreground">{formatCurrency(trade.priceInUsd)}</p>
-                <p className="text-foreground-subtle text-xs">Bought</p>
+              <div className="mb-3 flex items-center justify-between text-sm">
+                <div>
+                  <p className="text-foreground">{formatCurrency(trade.priceInUsd)}</p>
+                  <p className="text-foreground-subtle text-xs">Bought</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-foreground">{formatCurrency(trade.priceOutUsd)}</p>
+                  <p className="text-foreground-subtle text-xs">Sold</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-foreground">{formatCurrency(trade.priceOutUsd)}</p>
-                <p className="text-foreground-subtle text-xs">Sold</p>
+
+              <div className="border-glass-border flex items-center justify-between border-t pt-3">
+                <span
+                  className={`text-sm font-medium ${
+                    trade.outcome === 'Profit' ? 'text-secondary' : 'text-loss'
+                  }`}
+                >
+                  {formatSignedCurrency(trade.pnlUsd)}
+                </span>
+                <Badge tone={trade.outcome === 'Profit' ? 'positive' : 'negative'}>
+                  {trade.outcome}
+                </Badge>
               </div>
             </div>
-
-            <div className="border-glass-border flex items-center justify-between border-t pt-3">
-              <span
-                className={`text-sm font-medium ${
-                  trade.outcome === 'Profit' ? 'text-secondary' : 'text-loss'
-                }`}
-              >
-                {formatSignedCurrency(trade.pnlUsd)}
-              </span>
-              <Badge tone={trade.outcome === 'Profit' ? 'positive' : 'negative'}>
-                {trade.outcome}
-              </Badge>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </GlassCard>
   );
 }

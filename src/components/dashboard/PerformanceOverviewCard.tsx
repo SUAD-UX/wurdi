@@ -39,9 +39,11 @@ export function PerformanceOverviewCard({ data }: PerformanceOverviewCardProps) 
         </div>
       </div>
 
-      <div className="text-foreground mb-2 inline-block rounded-lg bg-white/[0.04] px-2.5 py-1 text-xs font-medium">
-        {formatCurrency(latest.valueUsd)}
-      </div>
+      {latest && (
+        <div className="text-foreground mb-2 inline-block rounded-lg bg-white/[0.04] px-2.5 py-1 text-xs font-medium">
+          {formatCurrency(latest.valueUsd)}
+        </div>
+      )}
 
       <PerformanceAreaChart data={data} detailed height={260} />
     </GlassCard>
