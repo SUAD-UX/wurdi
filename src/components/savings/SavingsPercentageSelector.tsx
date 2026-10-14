@@ -87,7 +87,7 @@ export function SavingsPercentageSelector({ value, onChange, onOpenChange }: Sav
           />
           <div
             role="listbox"
-            className="border-glass-border-strong bg-background-elevated/95 absolute right-0 z-30 mt-2 w-48 rounded-2xl border p-2 shadow-[var(--shadow-ambient)] backdrop-blur-[var(--glass-blur)]"
+            className="border-glass-border-strong bg-background-elevated absolute right-0 z-30 mt-2 w-48 rounded-2xl border p-2 shadow-[var(--shadow-ambient)] backdrop-blur-sm"
           >
             <p className="text-foreground-subtle px-2 py-1.5 text-xs font-medium">
               Save from profit

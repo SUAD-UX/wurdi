@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowUpRight, Info, Lock, Settings2, Wallet } from 'lucide-react';
+import { ArrowUpRight, Info, Settings2, Wallet } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { SavingsPercentageSelector } from '@/components/savings/SavingsPercentageSelector';
+import { VaultCore } from '@/components/savings/VaultCore';
 import type { SavingsPreference, SavingsVault } from '@/types/portfolio';
 import { calculateSavingsPreview } from '@/features/savings/calculations';
 import { formatCurrency, formatSignedCurrency, truncateAddress } from '@/utils/format';
@@ -17,6 +18,7 @@ export interface SavingsVaultCardProps {
   onManageVault?: () => void;
   onConnectWallet?: () => void;
   onDropdownOpenChange?: (isOpen: boolean) => void;
+  pulse?: boolean;
 }
 
 /**
@@ -32,6 +34,7 @@ export function SavingsVaultCard({
   onManageVault,
   onConnectWallet,
   onDropdownOpenChange,
+  pulse = false,
 }: SavingsVaultCardProps) {
   const [preference, setPreference] = useState<SavingsPreference>(vault.preference);
   const [percentageMenuOpen, setPercentageMenuOpen] = useState(false);
@@ -77,12 +80,7 @@ export function SavingsVaultCard({
               </p>
             </div>
 
-            <div
-              className="from-primary/25 to-secondary/10 relative flex h-20 w-20 shrink-0 items-center justify-center bg-gradient-to-br shadow-[0_20px_40px_-16px_rgba(18,185,129,0.3)]"
-              style={{ borderRadius: '38% 62% 55% 45% / 45% 40% 60% 55%' }}
-            >
-              <Lock className="text-secondary h-8 w-8" strokeWidth={1.5} />
-            </div>
+            <VaultCore pulse={pulse} />
           </div>
 
           <div className="border-glass-border mt-5 rounded-2xl border bg-white/[0.015] p-4">

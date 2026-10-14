@@ -2,6 +2,24 @@
 
 WURDI is a single-application Next.js product that keeps the browser as a UI layer and uses the same project for server-side auth, database access, and protected financial logic.
 
+## Metropolis submission
+
+WURDI is a non-custodial profit lock that helps traders keep a share of their wins by reviewing a receipt and locking funds into a vault on Monad. The vault has no owner or admin, and funds can only be withdrawn after the selected lock period ends.
+
+**Monad testnet vault contract:** [0x3f607f7CD4AA3aC6992a0E5408515574BCb03Bc8](https://testnet.monadvision.com/address/0x3f607f7CD4AA3aC6992a0E5408515574BCb03Bc8)
+
+### How to try it
+
+1. Connect an EVM wallet configured for Monad Testnet.
+2. Open the **Profit Lock** page.
+3. Type a demo profit amount manually. This demo does not detect profits from trades automatically.
+4. Review the receipt before approving the vault transaction in your wallet.
+5. Early withdrawal is blocked until the selected lock duration ends.
+
+**AI tools used:** Claude (Anthropic) for planning and code assistance, and GitHub Copilot for in-editor code assistance.
+
+The base dashboard UI existed before Sep 1, 2026. The Monad vault contract, Profit Lock page and network setup were built during the hackathon.
+
 ## Product constraints
 
 - Keep the current UI/UX intact.

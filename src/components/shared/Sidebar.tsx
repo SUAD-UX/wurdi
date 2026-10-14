@@ -24,6 +24,11 @@ export interface SidebarProps {
 export function Sidebar({ userName, walletAddress, variant = 'full', onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const isRail = variant === 'rail';
+  const displayName =
+    /^0x[a-fA-F0-9]{40}$/.test(userName.trim()) ||
+    /^wallet\s+0x[0-9a-f]+\.{3}[0-9a-f]+$/i.test(userName.trim())
+      ? ''
+      : userName;
 
   return (
     <aside
@@ -75,16 +80,16 @@ export function Sidebar({ userName, walletAddress, variant = 'full', onNavigate 
         </nav>
       </div>
 
-      {(userName.trim() || walletAddress.trim()) && (
+      {(displayName.trim() || walletAddress.trim()) && (
         <div className={cn('flex flex-col gap-4', isRail ? 'items-center' : '')}>
         {isRail ? (
-          <Avatar name={userName || walletAddress} title={userName || walletAddress} />
+          <Avatar name={displayName || 'W'} title={displayName || 'Account'} />
         ) : (
           <button className="flex w-full items-center gap-3 rounded-xl px-1 py-1 text-left transition-colors hover:bg-white/[0.04]">
-            <Avatar name={userName || walletAddress} />
+            <Avatar name={displayName || 'W'} title={displayName || 'Account'} />
             <span className="min-w-0 flex-1">
-              {userName.trim() && (
-                <span className="text-foreground block truncate text-sm font-medium">{userName}</span>
+              {displayName.trim() && (
+                <span className="text-foreground block truncate text-sm font-medium">{displayName}</span>
               )}
               {walletAddress.trim() && (
                 <span className="text-foreground-subtle block truncate text-xs">

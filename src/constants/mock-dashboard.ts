@@ -78,7 +78,7 @@ export const MOCK_TRADES: Trade[] = [
 
 export const MOCK_WALLET: ConnectedWallet = {
   address: '0x7a3F2b91C4d5E68a9b0F1c2D3e4F5061728394Ae9',
-  network: 'Ethereum Mainnet',
+  network: 'Monad Testnet',
   isConnected: true,
   lastSyncedAgo: '2 mins ago',
 };
@@ -90,7 +90,7 @@ export const MOCK_SAVINGS: SavingsVault = {
   wallet: {
     isConnected: true,
     address: '0x3f8B1a2C9d0E4f5A6b7C8d9E0f1A2b3C4d5Eab21',
-    network: 'Ethereum Mainnet',
+    network: 'Monad Testnet',
   },
 };
 

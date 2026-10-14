@@ -1,10 +1,11 @@
-import { Bell, ChevronDown, Globe, Menu } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { IconButton } from '@/components/ui/IconButton';
+import { NetworkSelector } from '@/components/shared/NetworkSelector';
 import { SearchTrigger } from '@/components/shared/SearchTrigger';
+import { cn } from '@/lib/utils';
 
 export interface TopbarProps {
   userName: string;
-  network: string;
   hasNotifications?: boolean;
   /** Present only on mobile — opens the off-canvas nav drawer. */
   onMenuClick?: () => void;
@@ -14,17 +15,21 @@ export interface TopbarProps {
 /** Page header: personalized greeting on the left, global controls on the right. */
 export function Topbar({
   userName,
-  network,
   hasNotifications,
   onMenuClick,
   onSearchClick,
 }: TopbarProps) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const greetingText = userName.trim() ? `${greeting}, ${userName.trim()}` : 'Good morning';
+  const trimmedName = userName.trim();
+  const safeName =
+    /^0x[a-fA-F0-9]{40}$/.test(trimmedName) ||
+    /^wallet\s+0x[0-9a-f]+\.{3}[0-9a-f]+$/i.test(trimmedName)
+      ? ''
+      : trimmedName;
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4">
+    <header className="flex flex-col items-stretch gap-4 md:flex-row md:items-center md:justify-between">
       <div className="flex min-w-0 items-center gap-3">
         {onMenuClick && (
           <IconButton aria-label="Open menu" onClick={onMenuClick} className="md:hidden">
@@ -32,16 +37,16 @@ export function Topbar({
           </IconButton>
         )}
         <div className="min-w-0">
-          <h1 className="text-foreground flex items-center gap-2 truncate text-xl font-semibold sm:text-2xl">
-            {greetingText} <span aria-hidden>👋</span>
+          <h1 className="text-foreground truncate text-xl font-semibold sm:text-2xl">
+            {greeting}{safeName ? `, ${safeName}` : ''}
           </h1>
-          <p className="text-foreground-subtle mt-1 hidden text-sm sm:block">
-            Track. Analyze. Grow. Secure your future.
+          <p className="text-foreground-subtle mt-1 text-sm">
+            Your wins, locked in.
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:flex-nowrap md:justify-end">
         <SearchTrigger onClick={onSearchClick} />
 
         <IconButton aria-label="Notifications" className="relative">
@@ -51,11 +56,15 @@ export function Topbar({
           )}
         </IconButton>
 
-        <button className="border-glass-border-strong bg-glass text-foreground-muted hover:text-foreground flex h-10 items-center gap-2 rounded-full border px-3 text-sm transition-colors sm:px-4">
-          <Globe className="h-4 w-4 shrink-0" strokeWidth={2} />
-          <span className="hidden sm:inline">{network}</span>
-          <ChevronDown className="h-3.5 w-3.5 shrink-0" />
-        </button>
+        <NetworkSelector />
+
+        <span className="border-glass-border bg-glass text-foreground-muted inline-flex h-8 items-center gap-2 rounded-full border px-3 text-xs">
+          <span className={cn('relative flex h-2 w-2')}>
+            <span className="bg-secondary absolute inline-flex h-full w-full animate-ping rounded-full opacity-40" />
+            <span className="bg-secondary relative inline-flex h-2 w-2 rounded-full" />
+          </span>
+          Monad Testnet · Live
+        </span>
       </div>
     </header>
   );

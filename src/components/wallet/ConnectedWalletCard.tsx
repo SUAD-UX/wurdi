@@ -25,7 +25,6 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
   const [status, setStatus] = useState<WalletAuthState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [displayAddress, setDisplayAddress] = useState(wallet.address);
-  const [network, setNetwork] = useState(wallet.network);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
@@ -39,7 +38,6 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       if (data.authenticated && data.user?.walletAddress) {
         setIsAuthenticated(true);
         setDisplayAddress(data.user.walletAddress);
-        setNetwork('Ethereum Mainnet');
         setStatus('authenticated');
         return;
       }
@@ -47,13 +45,12 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       setIsAuthenticated(false);
       setStatus('idle');
       setDisplayAddress(wallet.address);
-      setNetwork(wallet.network);
     } catch {
       setIsAuthenticated(false);
       setStatus('error');
       setErrorMessage("Couldn't connect. Please try again.");
     }
-  }, [wallet.address, wallet.network]);
+  }, [wallet.address]);
 
   useEffect(() => {
     let ignore = false;
@@ -70,7 +67,6 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
         if (data.authenticated && data.user?.walletAddress) {
           setIsAuthenticated(true);
           setDisplayAddress(data.user.walletAddress);
-          setNetwork('Ethereum Mainnet');
           setStatus('authenticated');
           return;
         }
@@ -78,7 +74,6 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
         setIsAuthenticated(false);
         setStatus('idle');
         setDisplayAddress(wallet.address);
-        setNetwork(wallet.network);
       } catch {
         if (!ignore) {
           setIsAuthenticated(false);
@@ -93,7 +88,7 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
     return () => {
       ignore = true;
     };
-  }, [wallet.address, wallet.network]);
+  }, [wallet.address]);
 
   async function handleConnect() {
     if (!window.ethereum) {
@@ -114,7 +109,6 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       }
 
       setDisplayAddress(selectedAddress);
-      setNetwork('Ethereum Mainnet');
 
       const challengeResponse = await fetch('/api/auth/challenge', {
         method: 'POST',
@@ -169,7 +163,6 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
       setIsAuthenticated(false);
       setStatus('idle');
       setDisplayAddress(wallet.address);
-      setNetwork(wallet.network);
       setErrorMessage('');
     } catch {
       setStatus('error');
@@ -256,7 +249,12 @@ export function ConnectedWalletCard({ wallet }: ConnectedWalletCardProps) {
             {truncateAddress(displayAddress)}
             <Copy className="text-foreground-subtle h-3.5 w-3.5" strokeWidth={2} />
           </button>
-          <p className="text-foreground-subtle text-xs">{network}</p>
+          <div className="mt-1 flex items-center gap-1.5">
+            <p className="text-foreground-subtle text-xs">Monad Testnet</p>
+            <span className="rounded-full border border-secondary/25 bg-secondary/10 px-1.5 py-0.5 text-[9px] font-semibold tracking-wide text-secondary">
+              MONAD
+            </span>
+          </div>
         </div>
       </div>
 

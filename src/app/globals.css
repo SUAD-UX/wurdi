@@ -252,6 +252,11 @@ body::after {
   .wurdi-bg-dataline svg {
     animation: none !important;
   }
+  .vault-core__ring,
+  .vault-core__core,
+  .vault-core__glow {
+    animation: none !important;
+  }
 }
 
 ::selection {
@@ -267,5 +272,85 @@ body::after {
   }
   50% {
     transform: translateY(calc(var(--float-distance) * -1));
+  }
+}
+
+.vault-core {
+  filter: drop-shadow(0 12px 24px rgba(16, 185, 129, 0.12));
+}
+
+.vault-core__ring {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  stroke: rgba(110, 231, 183, 0.52);
+  stroke-width: 0.9;
+}
+
+.vault-core__ring--outer {
+  animation: vault-core-orbit 38s linear infinite;
+}
+
+.vault-core__ring--middle {
+  stroke: rgba(16, 185, 129, 0.5);
+  animation: vault-core-orbit 53s linear infinite reverse;
+}
+
+.vault-core__ring--inner {
+  stroke: rgba(167, 243, 208, 0.62);
+  animation: vault-core-orbit 31s linear infinite;
+}
+
+.vault-core__glow {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.65;
+  animation: vault-core-breathe 4.6s ease-in-out infinite;
+}
+
+.vault-core__core {
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(0 0 7px rgba(16, 185, 129, 0.52));
+  animation: vault-core-breathe 4.6s ease-in-out infinite;
+}
+
+.vault-core--pulse .vault-core__glow {
+  animation: vault-core-flare 1.4s ease-out;
+}
+
+.vault-core--pulse .vault-core__core {
+  animation: vault-core-core-flare 1.4s ease-out;
+}
+
+@keyframes vault-core-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes vault-core-breathe {
+  50% {
+    opacity: 0.82;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes vault-core-flare {
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.65;
+  }
+}
+
+@keyframes vault-core-core-flare {
+  35% {
+    filter: drop-shadow(0 0 18px rgba(110, 231, 183, 0.95));
+    transform: scale(1.2);
+  }
+  100% {
+    filter: drop-shadow(0 0 7px rgba(16, 185, 129, 0.52));
+    transform: scale(1);
   }
 }

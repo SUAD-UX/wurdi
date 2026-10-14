@@ -59,6 +59,7 @@ export function PortfolioHeroCard({ snapshot, performance }: PortfolioHeroCardPr
         style={{
           background: 'radial-gradient(85% 140% at 8% 0%, rgba(18,185,129,0.055), transparent 78%)',
           borderRadius: 'inherit',
+          clipPath: 'inset(0 round 2rem)',
         }}
         aria-hidden="true"
       />

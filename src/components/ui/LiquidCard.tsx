@@ -26,6 +26,10 @@ export interface LiquidCardProps extends HTMLAttributes<HTMLDivElement> {
  */
 export const LiquidCard = forwardRef<HTMLDivElement, LiquidCardProps>(
   ({ className, flip, children, ...props }, ref) => {
+    const silhouetteRadius = flip
+      ? '2rem 3.5rem 2.75rem 4.5rem'
+      : '3.5rem 2rem 4.5rem 2.75rem';
+
     return (
       <div ref={ref} className={cn('relative isolate', className)} {...props}>
         {/* Layer 1: decorative organic silhouette + glass material. */}
@@ -39,7 +43,7 @@ export const LiquidCard = forwardRef<HTMLDivElement, LiquidCardProps>(
           style={{
             // Fixed rem radii, deliberately uneven per corner — this is what keeps
             // the "rounded rectangle with organic corners" read instead of an oval.
-            borderRadius: flip ? '2rem 3.5rem 2.75rem 4.5rem' : '3.5rem 2rem 4.5rem 2.75rem',
+            borderRadius: silhouetteRadius,
             animation: 'wurdi-float var(--float-duration) ease-in-out infinite',
           }}
           aria-hidden="true"
@@ -52,6 +56,7 @@ export const LiquidCard = forwardRef<HTMLDivElement, LiquidCardProps>(
               background:
                 'linear-gradient(155deg, rgba(255,255,255,var(--glass-highlight-opacity)) 0%, transparent 22%)',
               borderRadius: 'inherit',
+              clipPath: `inset(0 round ${silhouetteRadius})`,
             }}
           />
           {/* Layer 3: internal ambient glow — small radial catch in one corner,
@@ -62,6 +67,7 @@ export const LiquidCard = forwardRef<HTMLDivElement, LiquidCardProps>(
               background:
                 'radial-gradient(32% 40% at 14% 10%, rgba(18,185,129,var(--glow-primary-opacity)), transparent 75%)',
               borderRadius: 'inherit',
+              clipPath: `inset(0 round ${silhouetteRadius})`,
             }}
           />
         </div>

@@ -59,7 +59,7 @@ export function DashboardLive() {
   const [performance, setPerformance] = useState<PerformancePoint[]>([]);
   const [pnl, setPnl] = useState<PnLSummary | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
-  const [wallet, setWallet] = useState<ConnectedWallet>({ address: '', network: 'Ethereum Mainnet', isConnected: false, lastSyncedAgo: 'Never' });
+  const [wallet, setWallet] = useState<ConnectedWallet>({ address: '', network: 'Monad Testnet', isConnected: false, lastSyncedAgo: 'Never' });
   const [savings, setSavings] = useState<SavingsVault | null>(null);
   const [savingsMenuOpen, setSavingsMenuOpen] = useState(false);
   const [insights, setInsights] = useState<InsightItem[]>([]);

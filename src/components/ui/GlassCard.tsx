@@ -16,7 +16,12 @@ export interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
  * (--glass-fill-opacity, --glass-border-opacity, --glass-blur, --glass-highlight-opacity).
  */
 export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
-  ({ className, strong, interactive, children, ...props }, ref) => {
+  ({ className, strong, interactive, children, style, ...props }, ref) => {
+    const cardRadius =
+      typeof style?.borderRadius === 'number'
+        ? `${style.borderRadius}px`
+        : style?.borderRadius ?? 'var(--radius-card)';
+
     return (
       <div
         ref={ref}
@@ -29,6 +34,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
             'group hover:border-glass-border-strong cursor-pointer hover:-translate-y-0.5',
           className,
         )}
+        style={style}
         {...props}
       >
         {/* Internal highlight: soft light catch along the top-left edge, so
@@ -40,6 +46,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
             background:
               'linear-gradient(155deg, rgba(255,255,255,var(--glass-highlight-opacity)) 0%, transparent 40%)',
             borderRadius: 'inherit',
+            clipPath: `inset(0 round ${cardRadius})`,
           }}
           aria-hidden="true"
         />
@@ -50,6 +57,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
               background:
                 'radial-gradient(60% 50% at 30% 0%, rgba(18,185,129,var(--glow-primary-opacity)), transparent 70%)',
               borderRadius: 'inherit',
+              clipPath: `inset(0 round ${cardRadius})`,
             }}
             aria-hidden="true"
           />
